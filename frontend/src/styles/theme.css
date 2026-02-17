@@ -1,0 +1,393 @@
+/**
+ * 科幻简洁风格主题 v2.0
+ * Sci-Fi Clean Theme - Eye Friendly
+ * 参考 GitHub 暗色主题 + 科幻元素
+ */
+
+:root {
+  /* 背景色 - 深蓝灰色系，柔和不刺眼 */
+  --bg-primary: #0d1117;      /* GitHub dark bg */
+  --bg-secondary: #161b22;    /* 卡片背景 */
+  --bg-tertiary: #21262d;     /* 悬浮/选中背景 */
+  --bg-elevated: #1c2128;     /*  elevated 表面 */
+  
+  /* 主色调 - 柔和青色，科技感但不刺眼 */
+  --primary-color: #58a6ff;       /* 柔和蓝 */
+  --primary-dark: #388bfd;        /* 深蓝 */
+  --primary-light: #79c0ff;       /* 浅蓝 */
+  --accent-color: #39d0d8;        /* 柔和青色 */
+  
+  /* 辅助色 - 低饱和度 */
+  --secondary-color: #a371f7;     /* 柔和紫色 */
+  --success-color: #3fb950;       /* 柔和绿 */
+  --warning-color: #d29922;       /* 柔和黄 */
+  --danger-color: #f85149;        /* 柔和红 */
+  
+  /* 涨跌色 - 降低饱和度，更护眼 */
+  --up-color: #3fb950;
+  --up-bg: rgba(63, 185, 80, 0.1);
+  --down-color: #f85149;
+  --down-bg: rgba(248, 81, 73, 0.1);
+  
+  /* 文字色 - 高可读性 */
+  --text-primary: #f0f6fc;        /* 主文字 - 接近白 */
+  --text-secondary: #8b949e;      /* 次要文字 - 灰 */
+  --text-muted: #6e7681;          /* 辅助文字 - 深灰 */
+  --text-link: #58a6ff;           /* 链接色 */
+  
+  /* 边框和分割 -  subtle */
+  --border-color: #30363d;
+  --border-light: #21262d;
+  --border-hover: #8b949e;
+  
+  /* 渐变 - 柔和 */
+  --gradient-primary: linear-gradient(135deg, #388bfd 0%, #58a6ff 50%, #39d0d8 100%);
+  --gradient-subtle: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+  
+  /* 阴影 - 柔和 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 12px rgba(88, 166, 255, 0.15);
+  
+  /* 字体 */
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* 滚动条 - 简洁风格 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+  border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* 背景效果 - 简洁点阵 */
+.bg-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(88, 166, 255, 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* 移除扫描线，太花哨 */
+
+/* 卡片样式 - GitHub风格 */
+.scifi-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.scifi-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+/* 简洁的角标 - 可选 */
+.corner-decoration {
+  display: none; /* 移除花哨的角标 */
+}
+
+/* 按钮样式 - 简洁 */
+.scifi-button {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scifi-button:hover {
+  background: var(--border-color);
+  border-color: var(--text-muted);
+}
+
+.scifi-button.primary {
+  background: var(--primary-dark);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.scifi-button.primary:hover {
+  background: var(--primary-color);
+  box-shadow: var(--shadow-glow);
+}
+
+/* 文字效果 - 简洁 */
+.text-glow {
+  text-shadow: 0 0 8px rgba(88, 166, 255, 0.3);
+}
+
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 数据展示 - 清晰 */
+.data-value {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.data-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 涨跌颜色 - 柔和 */
+.up {
+  color: var(--up-color);
+  font-weight: 500;
+}
+
+.down {
+  color: var(--down-color);
+  font-weight: 500;
+}
+
+/* 进度条 - 简洁 */
+.progress-bar {
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* 加载动画 - 简洁 */
+.loading-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* 表格样式覆盖 */
+.ant-table {
+  background: transparent !important;
+}
+
+.ant-table-thead > tr > th {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  font-weight: 600;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--border-light) !important;
+  color: var(--text-primary);
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: var(--bg-tertiary) !important;
+}
+
+/* Ant Design 组件覆盖 */
+.ant-layout-sider {
+  background: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-color);
+}
+
+.ant-layout-header {
+  background: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ant-menu-dark {
+  background: var(--bg-secondary) !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background: var(--primary-dark) !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+  color: var(--primary-color) !important;
+}
+
+/* 全局文字颜色覆盖 - 确保没有黑色 */
+*,
+*::before,
+*::after {
+  color: inherit;
+}
+
+body,
+.ant-layout,
+.ant-layout-content,
+.ant-card,
+.ant-card-body,
+.ant-form,
+.ant-form-item-label,
+.ant-form-item,
+.ant-input,
+.ant-input-number,
+.ant-select,
+.ant-select-selector,
+.ant-btn,
+.ant-table,
+.ant-table-cell,
+.ant-pagination,
+.ant-pagination-item,
+.ant-pagination-options,
+.ant-modal,
+.ant-modal-content,
+.ant-modal-header,
+.ant-modal-body,
+.ant-message,
+.ant-dropdown,
+.ant-dropdown-menu,
+.ant-tooltip,
+.ant-tag {
+  color: var(--text-primary) !important;
+}
+
+.ant-form-item-label > label {
+  color: var(--text-secondary) !important;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-select-selector {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-select-selector:hover {
+  border-color: var(--border-hover) !important;
+}
+
+.ant-btn-default {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.ant-btn-default:hover {
+  border-color: var(--primary-color) !important;
+  color: var(--primary-color) !important;
+}
+
+.ant-slider-rail {
+  background: var(--border-color) !important;
+}
+
+.ant-slider-track {
+  background: var(--primary-color) !important;
+}
+
+.ant-slider-handle {
+  border-color: var(--primary-color) !important;
+}
+
+.ant-card {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.ant-card-head {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 评分徽章 - 简洁 */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 14px;
+  border: 2px solid;
+}
+
+.score-badge.high {
+  background: rgba(63, 185, 80, 0.1);
+  border-color: var(--up-color);
+  color: var(--up-color);
+}
+
+.score-badge.medium {
+  background: rgba(88, 166, 255, 0.1);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.score-badge.low {
+  background: rgba(248, 81, 73, 0.1);
+  border-color: var(--down-color);
+  color: var(--down-color);
+}
