@@ -8,7 +8,7 @@ import {
   BellFilled, LineChartOutlined, PercentageOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { SciFiCard } from './Common';
+import { LuxuryCard } from './Common';
 
 const ALERTS_KEY = 'stock_analyzer_price_alerts';
 const ALERTS_ENABLED_KEY = 'stock_analyzer_alerts_enabled';
@@ -468,7 +468,7 @@ const PriceAlert = ({
 
   return (
     <>
-      <SciFiCard
+      <LuxuryCard
         title={
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -524,7 +524,7 @@ const PriceAlert = ({
           </div>
         )}
         <AlertList />
-      </SciFiCard>
+      </LuxuryCard>
 
       <AlertModal />
     </>

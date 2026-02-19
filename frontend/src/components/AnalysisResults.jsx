@@ -8,7 +8,7 @@ import {
   FilterOutlined, BarChartOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { SciFiCard, ScoreBadge, ChangeDisplay } from './Common';
+import { LuxuryCard, ScoreBadge, ChangeDisplay } from './Common';
 import { QuickAlertButton } from './PriceAlert';
 import StockSearch from './StockSearch';
 import axios from 'axios';
@@ -430,7 +430,7 @@ const AnalysisResults = () => {
   ];
 
   return (
-    <SciFiCard 
+    <LuxuryCard 
       title={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span>智能选股分析</span>
@@ -583,7 +583,7 @@ const AnalysisResults = () => {
         scroll={{ x: 1200, y: 600 }}
         size="small"
       />
-    </SciFiCard>
+    </LuxuryCard>
   );
 };
 

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AutoComplete, Input, Spin, Empty } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, RiseOutlined, FallOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 
 /**
- * 股票搜索自动补全组件
+ * 股票搜索自动补全组件 - 奢华黑金风格
  * @param {function} onSelect - 选中股票回调 (symbol, name) => {}
  * @param {string} placeholder - 占位文本
  * @param {string} value - 当前值
@@ -26,6 +26,7 @@ const StockSearch = ({
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState(value || '');
+  const [isFocused, setIsFocused] = useState(false);
   const abortControllerRef = useRef(null);
 
   // 搜索股票
@@ -51,17 +52,41 @@ const StockSearch = ({
       const results = response.data.map(stock => ({
         value: stock.symbol,
         label: (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <span style={{ fontWeight: 'bold', marginRight: '8px' }}>{stock.symbol}</span>
-              <span style={{ color: 'var(--text-secondary)' }}>{stock.name}</span>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '4px 0'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ 
+                fontFamily: 'var(--font-mono)',
+                fontWeight: '600', 
+                fontSize: '14px',
+                color: 'var(--gold-primary)',
+                minWidth: '60px'
+              }}>
+                {stock.symbol}
+              </span>
+              <span style={{ 
+                color: 'var(--text-secondary)',
+                fontSize: '13px'
+              }}>
+                {stock.name}
+              </span>
             </div>
-            <span style={{ 
-              fontSize: '12px', 
-              color: stock.change_percent >= 0 ? 'var(--success-color)' : 'var(--danger-color)'
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '13px',
+              fontWeight: '500',
+              color: stock.change_percent >= 0 ? 'var(--up-color)' : 'var(--down-color)'
             }}>
+              {stock.change_percent >= 0 ? <RiseOutlined /> : <FallOutlined />}
               {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent?.toFixed(2)}%
-            </span>
+            </div>
           </div>
         ),
         symbol: stock.symbol,
@@ -113,6 +138,8 @@ const StockSearch = ({
     if (onChange) onChange('');
   };
 
+  const inputSize = size === 'small' ? { height: '36px' } : size === 'large' ? { height: '48px' } : { height: '40px' };
+
   return (
     <AutoComplete
       options={options}
@@ -122,24 +149,47 @@ const StockSearch = ({
       allowClear={allowClear}
       onClear={handleClear}
       style={{ width: '100%', ...style }}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+      dropdownStyle={{
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-gold)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-gold), var(--shadow-lg)'
+      }}
       notFoundContent={
         loading ? (
-          <div style={{ padding: '20px', textAlign: 'center' }}>
-            <Spin size="small" />
+          <div style={{ padding: '24px', textAlign: 'center' }}>
+            <div className="loading-gold" />
           </div>
         ) : searchValue.length > 0 ? (
-          <Empty description="未找到相关股票" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty 
+            description={<span style={{ color: 'var(--text-muted)' }}>未找到相关股票</span>} 
+            image={Empty.PRESENTED_IMAGE_SIMPLE} 
+          />
         ) : null
       }
     >
       <Input
         size={size}
         placeholder={placeholder}
-        prefix={<SearchOutlined style={{ color: 'var(--text-muted)' }} />}
+        prefix={
+          <SearchOutlined 
+            style={{ 
+              color: isFocused ? 'var(--gold-primary)' : 'var(--text-muted)',
+              fontSize: '16px',
+              transition: 'color 0.3s ease'
+            }} 
+          />
+        }
         style={{
           background: 'var(--bg-tertiary)',
-          borderColor: 'var(--border-color)',
-          color: 'var(--text-primary)'
+          borderColor: isFocused ? 'var(--gold-primary)' : 'var(--border-color)',
+          color: 'var(--text-primary)',
+          borderRadius: 'var(--radius-md)',
+          transition: 'all 0.3s ease',
+          boxShadow: isFocused ? '0 0 0 2px rgba(212, 168, 83, 0.1)' : 'none',
+          ...inputSize
         }}
       />
     </AutoComplete>

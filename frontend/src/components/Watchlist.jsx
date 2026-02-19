@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { SciFiCard, ChangeDisplay, LoadingState } from './Common';
+import { LuxuryCard, ChangeDisplay, LoadingState } from './Common';
 
 const WATCHLIST_KEY = 'stock_analyzer_watchlist';
 
@@ -274,7 +274,7 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
 
   return (
     <>
-      <SciFiCard 
+      <LuxuryCard 
         title={
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -330,7 +330,7 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
             scroll={{ y: 400 }}
           />
         )}
-      </SciFiCard>
+      </LuxuryCard>
 
       {/* 股票详情弹窗 */}
       <Modal

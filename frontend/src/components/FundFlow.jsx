@@ -9,7 +9,7 @@ import {
   BarChartOutlined,
   MoneyCollectOutlined
 } from '@ant-design/icons';
-import { SciFiCard, LoadingState } from './Common';
+import { LuxuryCard, LoadingState } from './Common';
 import axios from 'axios';
 import { Line, Column } from '@ant-design/plots';
 
@@ -56,27 +56,27 @@ const FundFlow = () => {
       <Row gutter={[16, 16]}>
         {/* 资金概览统计 */}
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <FundSummaryCard 
               title="主力净流入"
               value={fundData.summary?.mainNetInflow}
               icon={<FireOutlined />}
               color="var(--success-color)"
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <FundSummaryCard 
               title="散户净流入"
               value={fundData.summary?.retailNetInflow}
               icon={<TeamOutlined />}
               color="var(--primary-color)"
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <FundSummaryCard 
               title="大单成交占比"
               value={fundData.summary?.bigOrderRatio}
@@ -84,10 +84,10 @@ const FundFlow = () => {
               color="var(--warning-color)"
               suffix="%"
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <FundSummaryCard 
               title="总成交额"
               value={fundData.summary?.totalVolume}
@@ -95,28 +95,28 @@ const FundFlow = () => {
               color="var(--info-color)"
               suffix="亿"
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
       </Row>
 
       {/* 主力与散户资金流向图表 */}
       <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
         <Col xs={24} lg={12}>
-          <SciFiCard title="主力资金流向趋势">
+          <LuxuryCard title="主力资金流向趋势">
             <MainFundFlowChart data={fundData.mainFlowTrend} />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} lg={12}>
-          <SciFiCard title="散户资金流向趋势">
+          <LuxuryCard title="散户资金流向趋势">
             <RetailFundFlowChart data={fundData.retailFlowTrend} />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
       </Row>
 
       {/* 资金流向排行 */}
       <Row style={{ marginTop: '16px' }}>
         <Col span={24}>
-          <SciFiCard title="资金流向排行">
+          <LuxuryCard title="资金流向排行">
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
               <TabPane tab="主力净流入TOP10" key="main">
                 <FundFlowTable 
@@ -140,7 +140,7 @@ const FundFlow = () => {
                 />
               </TabPane>
             </Tabs>
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
       </Row>
     </div>

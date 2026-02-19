@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Form, InputNumber, Button, Slider, Space, message, Card, Row, Col } from 'antd';
 import { SettingOutlined, PlayCircleOutlined, SyncOutlined } from '@ant-design/icons';
-import { SciFiCard, LoadingState } from './Common';
+import { LuxuryCard, LoadingState } from './Common';
 import axios from 'axios';
 
 /**
@@ -71,7 +71,7 @@ const StrategyConfig = () => {
   if (loading) return <LoadingState text="加载策略配置..." />;
 
   return (
-    <SciFiCard title="策略参数配置">
+    <LuxuryCard title="策略参数配置">
       <Form
         form={form}
         layout="vertical"
@@ -185,7 +185,7 @@ const StrategyConfig = () => {
           </Space>
         </div>
       </Form>
-    </SciFiCard>
+    </LuxuryCard>
   );
 };
 

@@ -22,3 +22,6 @@ yarn-error.log*
 dist/
 build/
 *.db
+# 排除缓存文件
+*.db
+*.db-journal

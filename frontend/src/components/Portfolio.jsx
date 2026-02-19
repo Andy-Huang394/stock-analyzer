@@ -12,7 +12,7 @@ import {
   CheckCircleOutlined,
   BarChartOutlined
 } from '@ant-design/icons';
-import { SciFiCard, LoadingState, ChangeDisplay } from './Common';
+import { LuxuryCard, LoadingState, ChangeDisplay } from './Common';
 import axios from 'axios';
 import { Pie, Line, Gauge } from '@ant-design/plots';
 
@@ -98,7 +98,7 @@ const Portfolio = () => {
       {/* 组合概览 */}
       <Row gutter={[16, 16]}>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '32px', color: 'var(--primary-color)', marginBottom: '8px' }}>
                 <PieChartOutlined />
@@ -113,10 +113,10 @@ const Portfolio = () => {
                 ¥{(analysis?.totalValue / 10000).toFixed(2)}万
               </div>
             </div>
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '32px', color: 'var(--success-color)', marginBottom: '8px' }}>
                 <LineChartOutlined />
@@ -131,10 +131,10 @@ const Portfolio = () => {
                 {analysis?.totalReturn >= 0 ? '+' : ''}{analysis?.totalReturn?.toFixed(2)}%
               </div>
             </div>
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '32px', color: 'var(--warning-color)', marginBottom: '8px' }}>
                 <WarningOutlined />
@@ -149,10 +149,10 @@ const Portfolio = () => {
                 {analysis?.volatility?.toFixed(2)}%
               </div>
             </div>
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '32px', color: 'var(--info-color)', marginBottom: '8px' }}>
                 <BarChartOutlined />
@@ -167,7 +167,7 @@ const Portfolio = () => {
                 {analysis?.sharpeRatio?.toFixed(2)}
               </div>
             </div>
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
       </Row>
 
@@ -175,7 +175,7 @@ const Portfolio = () => {
       <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
         {/* 左侧：持仓列表 */}
         <Col xs={24} lg={14}>
-          <SciFiCard 
+          <LuxuryCard 
             title="持仓明细"
             extra={
               <Button 
@@ -192,21 +192,21 @@ const Portfolio = () => {
               onEdit={openEditModal}
               onDelete={handleDelete}
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
 
         {/* 右侧：配置图表 */}
         <Col xs={24} lg={10}>
           <Row gutter={[16, 16]}>
             <Col span={24}>
-              <SciFiCard title="资产配置">
+              <LuxuryCard title="资产配置">
                 <PortfolioPieChart data={portfolio} />
-              </SciFiCard>
+              </LuxuryCard>
             </Col>
             <Col span={24}>
-              <SciFiCard title="风险收益评估">
+              <LuxuryCard title="风险收益评估">
                 <RiskReturnGauge analysis={analysis} />
-              </SciFiCard>
+              </LuxuryCard>
             </Col>
           </Row>
         </Col>
@@ -215,9 +215,9 @@ const Portfolio = () => {
       {/* 收益走势 */}
       <Row style={{ marginTop: '16px' }}>
         <Col span={24}>
-          <SciFiCard title="组合收益走势">
+          <LuxuryCard title="组合收益走势">
             <PortfolioReturnChart data={analysis?.returns || []} />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
       </Row>
 
@@ -225,9 +225,9 @@ const Portfolio = () => {
       {analysis?.suggestions && (
         <Row style={{ marginTop: '16px' }}>
           <Col span={24}>
-            <SciFiCard title="配置建议">
+            <LuxuryCard title="配置建议">
               <PortfolioSuggestions suggestions={analysis.suggestions} />
-            </SciFiCard>
+            </LuxuryCard>
           </Col>
         </Row>
       )}

@@ -9,7 +9,7 @@ import {
   MoneyCollectOutlined,
   AppstoreOutlined
 } from '@ant-design/icons';
-import { SciFiCard, LoadingState, ChangeDisplay } from './Common';
+import { LuxuryCard, LoadingState, ChangeDisplay } from './Common';
 import axios from 'axios';
 
 const { TabPane } = Tabs;
@@ -59,7 +59,7 @@ const SectorHeat = () => {
       {/* 板块统计概览 */}
       <Row gutter={[16, 16]}>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <SectorStatCard 
               title="上涨板块"
               value={sectorData.stats?.upSectors}
@@ -67,10 +67,10 @@ const SectorHeat = () => {
               icon={<RiseOutlined />}
               color="var(--success-color)"
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <SectorStatCard 
               title="下跌板块"
               value={sectorData.stats?.downSectors}
@@ -78,10 +78,10 @@ const SectorHeat = () => {
               icon={<FallOutlined />}
               color="var(--danger-color)"
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <SectorStatCard 
               title="板块平均涨幅"
               value={sectorData.stats?.avgChange}
@@ -89,10 +89,10 @@ const SectorHeat = () => {
               color="var(--primary-color)"
               suffix="%"
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
         <Col xs={24} md={6}>
-          <SciFiCard>
+          <LuxuryCard>
             <SectorStatCard 
               title="总成交额"
               value={sectorData.stats?.totalVolume}
@@ -100,7 +100,7 @@ const SectorHeat = () => {
               color="var(--warning-color)"
               suffix="亿"
             />
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
       </Row>
 
@@ -108,7 +108,7 @@ const SectorHeat = () => {
       <Row gutter={[16, 16]} style={{ marginTop: '16px' }}>
         {/* 左侧：板块热力图/列表 */}
         <Col xs={24} lg={14}>
-          <SciFiCard title="板块热点">
+          <LuxuryCard title="板块热点">
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
               <TabPane tab="涨跌热力图" key="heatmap">
                 <SectorHeatMap 
@@ -127,12 +127,12 @@ const SectorHeat = () => {
                 <SectorFundFlowTable sectors={sectorData.fundFlow} />
               </TabPane>
             </Tabs>
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
 
         {/* 右侧：板块详情 */}
         <Col xs={24} lg={10}>
-          <SciFiCard title={selectedSector ? `${selectedSector.name} - 板块详情` : '选择板块查看详情'}>
+          <LuxuryCard title={selectedSector ? `${selectedSector.name} - 板块详情` : '选择板块查看详情'}>
             {selectedSector ? (
               <SectorDetail sector={selectedSector} />
             ) : (
@@ -145,7 +145,7 @@ const SectorHeat = () => {
                 <p>点击左侧板块查看详细信息</p>
               </div>
             )}
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
       </Row>
     </div>

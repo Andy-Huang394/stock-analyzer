@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Typography, Row, Col } from 'antd';
+import { Layout, Menu, Typography, Row, Col, Button } from 'antd';
 import { 
   DashboardOutlined, 
   LineChartOutlined, 
@@ -9,7 +9,9 @@ import {
   MenuOutlined,
   MoneyCollectOutlined,
   FireOutlined,
-  PieChartOutlined
+  PieChartOutlined,
+  CrownOutlined,
+  ArrowLeftOutlined
 } from '@ant-design/icons';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import MarketOverview from './components/MarketOverview';
@@ -83,8 +85,9 @@ const Navigation = () => {
       selectedKeys={[location.pathname]}
       items={menuItems}
       style={{ 
-        background: 'var(--bg-secondary)',
-        borderRight: '1px solid var(--border-color)'
+        background: 'transparent',
+        borderRight: 'none',
+        padding: '8px 0'
       }}
     />
   );
@@ -121,14 +124,15 @@ const PageHeader = () => {
           margin: 0, 
           color: 'var(--text-primary)',
           fontWeight: '600',
-          fontSize: '18px',
-          whiteSpace: 'nowrap'
+          fontSize: '20px',
+          whiteSpace: 'nowrap',
+          fontFamily: 'var(--font-display)',
+          letterSpacing: '0.5px'
         }}>
           {titles[location.pathname] || 'Stock Analyzer'}
         </Title>
         
-        {/* 股票搜索框 */}
-        <div style={{ maxWidth: '300px', width: '100%' }}>
+        <div style={{ maxWidth: '320px', width: '100%' }}>
           <StockSearch 
             size="small"
             placeholder="搜索股票..."
@@ -141,11 +145,17 @@ const PageHeader = () => {
       
       <div style={{ 
         fontFamily: 'var(--font-mono)',
-        fontSize: '12px',
-        color: 'var(--text-secondary)',
-        whiteSpace: 'nowrap'
+        fontSize: '13px',
+        color: 'var(--gold-primary)',
+        whiteSpace: 'nowrap',
+        letterSpacing: '0.5px'
       }}>
-        {new Date().toLocaleString('zh-CN')}
+        {new Date().toLocaleString('zh-CN', {
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}
       </div>
     </div>
   );
@@ -158,7 +168,7 @@ const WatchlistPage = () => {
   const navigate = useNavigate();
   
   return (
-    <Row gutter={[16, 16]}>
+    <Row gutter={[20, 20]}>
       <Col xs={24} lg={16}>
         <Watchlist onSelectStock={(stock) => navigate(`/stock/${stock.symbol}`)} />
       </Col>
@@ -173,7 +183,7 @@ const WatchlistPage = () => {
  * 预警页面
  */
 const AlertsPage = () => (
-  <Row gutter={[16, 16]}>
+  <Row gutter={[20, 20]}>
     <Col xs={24} lg={16}>
       <PriceAlert />
     </Col>
@@ -188,20 +198,52 @@ const AlertsPage = () => (
  */
 const StockDetailPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const symbol = location.pathname.split('/').pop();
   
   return (
-    <Row gutter={[16, 16]}>
-      <Col xs={24} lg={16}>
-        <StockChart symbol={symbol} />
-      </Col>
-      <Col xs={24} lg={8}>
-        <PriceAlert symbol={symbol} />
-        <div style={{ marginTop: '16px' }}>
-          <Watchlist />
-        </div>
-      </Col>
-    </Row>
+    <div>
+      {/* 返回按钮 */}
+      <div style={{ 
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <Button 
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate(-1)}
+          style={{
+            background: 'var(--bg-tertiary)',
+            borderColor: 'var(--border-color)',
+            color: 'var(--text-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          返回
+        </Button>
+        <span style={{ 
+          color: 'var(--text-muted)',
+          fontSize: '13px'
+        }}>
+          {symbol} 详情
+        </span>
+      </div>
+      
+      <Row gutter={[20, 20]}>
+        <Col xs={24} lg={16}>
+          <StockChart symbol={symbol} />
+        </Col>
+        <Col xs={24} lg={8}>
+          <PriceAlert symbol={symbol} />
+          <div style={{ marginTop: '20px' }}>
+            <Watchlist />
+          </div>
+        </Col>
+      </Row>
+    </div>
   );
 };
 
@@ -247,7 +289,7 @@ const MobileLayout = ({ children }) => {
       <Layout style={{ background: 'transparent' }}>
         <Header style={{
           background: 'var(--bg-secondary)',
-          borderBottom: '1px solid var(--border-color)',
+          borderBottom: '1px solid var(--border-gold)',
           padding: '0 16px',
           position: 'sticky',
           top: 0,
@@ -260,7 +302,7 @@ const MobileLayout = ({ children }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <MenuOutlined 
               style={{ 
-                color: 'var(--text-primary)', 
+                color: 'var(--gold-primary)', 
                 fontSize: '20px',
                 cursor: 'pointer'
               }}
@@ -268,8 +310,9 @@ const MobileLayout = ({ children }) => {
             />
             <Title level={4} style={{ 
               margin: 0, 
-              color: 'var(--text-primary)',
-              fontSize: '16px'
+              color: 'var(--gold-primary)',
+              fontSize: '16px',
+              fontFamily: 'var(--font-display)'
             }}>
               Stock Analyzer
             </Title>
@@ -292,19 +335,38 @@ const MobileLayout = ({ children }) => {
           >
             <div 
               style={{
-                width: '200px',
+                width: '240px',
                 height: '100%',
                 background: 'var(--bg-secondary)',
-                borderRight: '1px solid var(--border-color)',
-                paddingTop: '64px'
+                borderRight: '1px solid var(--border-gold)',
+                paddingTop: '20px'
               }}
               onClick={e => e.stopPropagation()}
             >
+              <div style={{ 
+                padding: '0 20px 20px',
+                borderBottom: '1px solid var(--border-gold)',
+                marginBottom: '10px'
+              }}>
+                <div style={{ 
+                  color: 'var(--gold-primary)',
+                  fontSize: '18px',
+                  fontWeight: '700',
+                  fontFamily: 'var(--font-display)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <CrownOutlined />
+                  Stock Analyzer
+                </div>
+              </div>
+              
               <Menu
                 theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}
-                style={{ background: 'var(--bg-secondary)', borderRight: 'none' }}
+                style={{ background: 'transparent', borderRight: 'none' }}
                 items={menuItems.map(item => ({
                   key: item.key,
                   icon: item.icon,
@@ -312,14 +374,14 @@ const MobileLayout = ({ children }) => {
                 }))}
               />
             </div>
-            <div style={{ flex: 1, background: 'rgba(0,0,0,0.5)' }} />
+            <div style={{ flex: 1, background: 'rgba(0,0,0,0.7)' }}></div>
           </div>
         )}
 
         <Content style={{ 
-          margin: '12px',
+          margin: '16px',
           background: 'transparent',
-          minHeight: 'calc(100vh - 88px)'
+          minHeight: 'calc(100vh - 96px)'
         }}>
           {children}
         </Content>
@@ -334,40 +396,39 @@ const MobileLayout = ({ children }) => {
 const DesktopLayout = ({ children }) => (
   <Layout style={{ minHeight: '100vh', background: 'transparent' }}>
     <Sider
-      width={200}
+      width={220}
       style={{
         background: 'var(--bg-secondary)',
-        borderRight: '1px solid var(--border-color)',
+        borderRight: '1px solid var(--border-gold)',
         position: 'fixed',
         height: '100vh',
         overflow: 'auto'
       }}
     >
       <div style={{ 
-        padding: '20px 16px',
-        borderBottom: '1px solid var(--border-color)',
+        padding: '24px 20px',
+        borderBottom: '1px solid var(--border-gold)',
       }}>
         <div style={{ 
-          color: 'var(--text-primary)',
-          fontSize: '18px',
+          color: 'var(--gold-primary)',
+          fontSize: '20px',
           fontWeight: '700',
+          fontFamily: 'var(--font-display)',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px'
+          gap: '10px',
+          letterSpacing: '0.5px'
         }}>
-          <span style={{
-            width: '8px',
-            height: '8px',
-            background: 'var(--primary-color)',
-            borderRadius: '2px'
-          }}/>
+          <CrownOutlined style={{ fontSize: '22px' }} />
           Stock Analyzer
         </div>
         <div style={{ 
           color: 'var(--text-muted)',
-          fontSize: '12px',
-          marginTop: '4px',
-          marginLeft: '18px'
+          fontSize: '11px',
+          marginTop: '6px',
+          marginLeft: '32px',
+          textTransform: 'uppercase',
+          letterSpacing: '1.5px'
         }}>
           A股量化分析平台
         </div>
@@ -377,27 +438,42 @@ const DesktopLayout = ({ children }) => (
       
       <div style={{ 
         position: 'absolute',
-        bottom: '16px',
+        bottom: '20px',
         left: '16px',
         right: '16px',
-        padding: '10px 12px',
+        padding: '12px 14px',
         background: 'var(--bg-tertiary)',
-        borderRadius: '6px',
-        fontSize: '11px',
-        color: 'var(--text-muted)',
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid var(--border-color)',
         textAlign: 'center'
       }}>
-        由 <span style={{ color: 'var(--text-secondary)' }}>贾维斯</span> 打造
+        <div style={{ 
+          fontSize: '10px', 
+          color: 'var(--text-muted)',
+          textTransform: 'uppercase',
+          letterSpacing: '1px'
+        }}>
+          Powered by
+        </div>
+        <div style={{ 
+          color: 'var(--gold-primary)',
+          fontSize: '13px',
+          fontWeight: '600',
+          marginTop: '2px',
+          fontFamily: 'var(--font-display)'
+        }}>
+          贾维斯
+        </div>
       </div>
     </Sider>
 
     <Layout style={{ 
-      marginLeft: 200,
+      marginLeft: 220,
       background: 'transparent'
     }}>
       <Header style={{
         background: 'var(--bg-secondary)',
-        borderBottom: '1px solid var(--border-color)',
+        borderBottom: '1px solid var(--border-gold)',
         padding: '0',
         position: 'sticky',
         top: 0,

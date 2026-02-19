@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col } from 'antd';
-import { RiseOutlined, FallOutlined } from '@ant-design/icons';
-import { SciFiCard, DataItem, LoadingState } from './Common';
+import { RiseOutlined, FallOutlined, StockOutlined, BarChartOutlined } from '@ant-design/icons';
+import { MetricCard, LuxuryCard, LoadingState } from './Common';
 import axios from 'axios';
 
 /**
- * 市场概览仪表盘
+ * 市场概览仪表盘 - 奢华黑金风格
  */
 const MarketOverview = () => {
   const [data, setData] = useState(null);
@@ -43,103 +43,178 @@ const MarketOverview = () => {
 
   return (
     <div>
-      <Row gutter={[16, 16]}>
+      <Row gutter={[20, 20]}>
         <Col xs={24} sm={12} md={6}>
-          <SciFiCard>
-            <DataItem 
-              label="上涨家数"
-              value={data.up_count}
-              change={`+${upRatio}%`}
-              trend="up"
-            />
-          </SciFiCard>
+          <MetricCard 
+            title="上涨家数"
+            value={data.up_count.toLocaleString()}
+            change={`+${upRatio}%`}
+            trend="up"
+            icon={<RiseOutlined />}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <SciFiCard>
-            <DataItem 
-              label="下跌家数"
-              value={data.down_count}
-              change={`-${downRatio}%`}
-              trend="down"
-            />
-          </SciFiCard>
+          <MetricCard 
+            title="下跌家数"
+            value={data.down_count.toLocaleString()}
+            change={`-${downRatio}%`}
+            trend="down"
+            icon={<FallOutlined />}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <SciFiCard>
-            <DataItem 
-              label="平均涨跌"
-              value={`${data.avg_change >= 0 ? '+' : ''}${data.avg_change.toFixed(2)}`}
-              unit="%"
-            />
-          </SciFiCard>
+          <MetricCard 
+            title="平均涨跌"
+            value={`${data.avg_change >= 0 ? '+' : ''}${data.avg_change.toFixed(2)}`}
+            trend={data.avg_change >= 0 ? 'up' : 'down'}
+            suffix="%"
+            icon={<BarChartOutlined />}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <SciFiCard>
-            <DataItem 
-              label="总成交额"
-              value={(data.volume / 100000000).toFixed(1)}
-              unit="亿"
-            />
-          </SciFiCard>
+          <MetricCard 
+            title="总成交额"
+            value={(data.volume / 100000000).toFixed(1)}
+            suffix="亿"
+            icon={<StockOutlined />}
+          />
         </Col>
       </Row>
 
-      {/* 涨跌分布可视化 */}
+      {/* 涨跌分布可视化 - 奢华进度条 */}
       <Row style={{ marginTop: '24px' }}>
         <Col span={24}>
-          <SciFiCard title="涨跌分布">
+          <LuxuryCard 
+            title="涨跌分布" 
+            subtitle={`全市场共 ${data.total_stocks.toLocaleString()} 只股票`}
+          >
             <div style={{ 
               display: 'flex', 
-              height: '40px',
-              borderRadius: '6px',
+              height: '44px',
+              borderRadius: 'var(--radius-md)',
               overflow: 'hidden',
-              background: 'var(--bg-tertiary)'
+              background: 'var(--bg-tertiary)',
+              border: '1px solid var(--border-color)',
+              position: 'relative'
             }}>
               <div style={{
                 width: `${upRatio}%`,
-                background: 'var(--success-color)',
+                background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--bg-primary)',
-                fontWeight: 'bold',
+                color: '#fff',
+                fontWeight: '600',
                 fontSize: '14px',
-                minWidth: upRatio > 5 ? 'auto' : '0'
+                fontFamily: 'var(--font-mono)',
+                minWidth: upRatio > 8 ? 'auto' : '0',
+                boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)',
+                transition: 'width 0.5s ease'
               }}>
-                {upRatio > 5 && <><RiseOutlined style={{ marginRight: '4px' }} /> {upRatio}%</>}
+                {upRatio > 8 && <>
+                  <RiseOutlined style={{ marginRight: '6px' }} /> 
+                  {upRatio}%
+                </>}
               </div>
+              
               <div style={{
                 width: `${flatRatio}%`,
                 background: 'var(--text-muted)',
                 minWidth: flatRatio > 1 ? '4px' : '0'
               }} />
+              
               <div style={{
                 width: `${downRatio}%`,
-                background: 'var(--danger-color)',
+                background: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                fontWeight: 'bold',
+                fontWeight: '600',
                 fontSize: '14px',
-                minWidth: downRatio > 5 ? 'auto' : '0'
+                fontFamily: 'var(--font-mono)',
+                minWidth: downRatio > 8 ? 'auto' : '0',
+                boxShadow: '0 0 20px rgba(239, 68, 68, 0.3)',
+                transition: 'width 0.5s ease'
               }}>
-                {downRatio > 5 && <><FallOutlined style={{ marginRight: '4px' }} /> {downRatio}%</>}
+                {downRatio > 8 && <>
+                  <FallOutlined style={{ marginRight: '6px' }} /> 
+                  {downRatio}%
+                </>}
               </div>
             </div>
+            
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between',
-              marginTop: '12px',
-              fontSize: '13px',
-              color: 'var(--text-secondary)'
+              marginTop: '16px',
+              fontSize: '13px'
             }}>
-              <span style={{ color: 'var(--success-color)' }}>上涨: {data.up_count}</span>
-              <span>平盘: {data.flat_count}</span>
-              <span style={{ color: 'var(--danger-color)' }}>下跌: {data.down_count}</span>
-              <span>总计: {data.total_stocks}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ 
+                  width: '8px', 
+                  height: '8px', 
+                  borderRadius: '50%',
+                  background: 'var(--success-color)',
+                  boxShadow: '0 0 8px var(--success-glow)'
+                }} />
+                <span style={{ color: 'var(--text-secondary)' }}>上涨</span>
+                <span style={{ 
+                  color: 'var(--success-color)',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: '600'
+                }}>
+                  {data.up_count.toLocaleString()}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ 
+                  width: '8px', 
+                  height: '8px', 
+                  borderRadius: '50%',
+                  background: 'var(--text-muted)'
+                }} />
+                <span style={{ color: 'var(--text-secondary)' }}>平盘</span>
+                <span style={{ 
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: '600'
+                }}>
+                  {data.flat_count.toLocaleString()}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ 
+                  width: '8px', 
+                  height: '8px', 
+                  borderRadius: '50%',
+                  background: 'var(--danger-color)',
+                  boxShadow: '0 0 8px var(--danger-glow)'
+                }} />
+                <span style={{ color: 'var(--text-secondary)' }}>下跌</span>
+                <span style={{ 
+                  color: 'var(--danger-color)',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: '600'
+                }}>
+                  {data.down_count.toLocaleString()}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>总计</span>
+                <span style={{ 
+                  color: 'var(--gold-primary)',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: '600'
+                }}>
+                  {data.total_stocks.toLocaleString()}
+                </span>
+              </div>
             </div>
-          </SciFiCard>
+          </LuxuryCard>
         </Col>
       </Row>
     </div>
