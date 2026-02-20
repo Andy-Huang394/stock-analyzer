@@ -19,6 +19,7 @@ from app.data.fetcher import data_fetcher
 # 新增导入
 from app.data.fundamentals import fundamental_fetcher, FundamentalData
 from app.core.decorators import rate_limit, api_cache, performance_monitor
+from app.models.watchlist import watchlist_manager
 
 router = APIRouter()
 
@@ -1195,3 +1196,326 @@ def generate_optimized_allocation(stocks):
         })
     
     return optimized
+
+
+# ========== 自选股API ==========
+
+@router.get("/watchlist")
+@rate_limit(requests_per_minute=60)
+@api_cache(ttl=30)
+async def get_watchlist(user_id: str = Query(default='default')):
+    """
+    获取自选股列表
+    
+    返回用户的所有自选股，包含添加时间和预警设置
+    """
+    try:
+        items = watchlist_manager.get_watchlist(user_id)
+        
+        # 获取实时数据
+        stocks_with_data = []
+        for item in items:
+            try:
+                quote = data_service.get_stock_quote(item['symbol'])
+                stocks_with_data.append({
+                    **item,
+                    'quote': quote
+                })
+            except Exception as e:
+                # 如果获取实时数据失败，仍然返回基本信息
+                stocks_with_data.append({
+                    **item,
+                    'quote': None
+                })
+        
+        return {
+            'stocks': stocks_with_data,
+            'count': len(stocks_with_data),
+            'user_id': user_id
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取自选股失败: {str(e)}")
+
+
+@router.post("/watchlist/add")
+@rate_limit(requests_per_minute=30)
+async def add_to_watchlist(
+    symbol: str,
+    name: str = None,
+    user_id: str = Query(default='default'),
+    alert_price_high: Optional[float] = None,
+    alert_price_low: Optional[float] = None,
+    notes: Optional[str] = None
+):
+    """
+    添加股票到自选股
+    
+    - symbol: 股票代码（必填）
+    - name: 股票名称（可选，自动获取）
+    - alert_price_high: 高价预警线（可选）
+    - alert_price_low: 低价预警线（可选）
+    - notes: 备注（可选）
+    """
+    try:
+        # 如果没有提供名称，尝试获取
+        if not name:
+            quote = data_service.get_stock_quote(symbol)
+            name = quote.get('name', symbol)
+        
+        result = watchlist_manager.add_stock(
+            symbol=symbol,
+            name=name,
+            user_id=user_id,
+            alert_high=alert_price_high,
+            alert_low=alert_price_low,
+            notes=notes
+        )
+        
+        if not result['success']:
+            raise HTTPException(status_code=400, detail=result['message'])
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"添加失败: {str(e)}")
+
+
+@router.delete("/watchlist/{symbol}")
+@rate_limit(requests_per_minute=30)
+async def remove_from_watchlist(
+    symbol: str,
+    user_id: str = Query(default='default')
+):
+    """
+    从自选股中移除股票
+    """
+    try:
+        result = watchlist_manager.remove_stock(symbol, user_id)
+        
+        if not result['success']:
+            raise HTTPException(status_code=404, detail=result['message'])
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"移除失败: {str(e)}")
+
+
+@router.get("/watchlist/{symbol}")
+@rate_limit(requests_per_minute=60)
+@api_cache(ttl=30)
+async def get_watchlist_item(
+    symbol: str,
+    user_id: str = Query(default='default')
+):
+    """
+    获取单个自选股的详细信息
+    """
+    try:
+        item = watchlist_manager.get_stock(symbol, user_id)
+        
+        if not item:
+            raise HTTPException(status_code=404, detail="股票不在自选列表中")
+        
+        # 获取实时行情
+        quote = data_service.get_stock_quote(symbol)
+        
+        return {
+            'watchlist': item,
+            'quote': quote
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取失败: {str(e)}")
+
+
+@router.put("/watchlist/{symbol}")
+@rate_limit(requests_per_minute=30)
+async def update_watchlist_item(
+    symbol: str,
+    user_id: str = Query(default='default'),
+    alert_price_high: Optional[float] = None,
+    alert_price_low: Optional[float] = None,
+    notes: Optional[str] = None
+):
+    """
+    更新自选股信息（预警价格、备注等）
+    """
+    try:
+        result = watchlist_manager.update_stock(
+            symbol=symbol,
+            user_id=user_id,
+            alert_high=alert_price_high,
+            alert_low=alert_price_low,
+            notes=notes
+        )
+        
+        if not result['success']:
+            raise HTTPException(status_code=404, detail=result['message'])
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"更新失败: {str(e)}")
+
+
+@router.get("/watchlist/check/{symbol}")
+@rate_limit(requests_per_minute=120)
+@api_cache(ttl=10)
+async def check_watchlist(
+    symbol: str,
+    user_id: str = Query(default='default')
+):
+    """
+    检查股票是否在自选股列表中
+    """
+    try:
+        is_watched = watchlist_manager.is_in_watchlist(symbol, user_id)
+        
+        return {
+            'symbol': symbol,
+            'in_watchlist': is_watched
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"检查失败: {str(e)}")
+
+
+@router.post("/watchlist/import")
+@rate_limit(requests_per_minute=10)
+async def import_watchlist(
+    data: dict,
+    user_id: str = Query(default='default')
+):
+    """
+    批量导入自选股
+    
+    请求体：
+    {
+        "stocks": [
+            {"symbol": "600519", "name": "贵州茅台"},
+            {"symbol": "000858", "name": "五粮液"}
+        ]
+    }
+    """
+    try:
+        stocks = data.get('stocks', [])
+        
+        if not stocks:
+            raise HTTPException(status_code=400, detail="股票列表不能为空")
+        
+        result = watchlist_manager.import_watchlist(stocks, user_id)
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"导入失败: {str(e)}")
+
+
+@router.delete("/watchlist")
+@rate_limit(requests_per_minute=5)
+async def clear_watchlist(user_id: str = Query(default='default')):
+    """
+    清空自选股列表
+    """
+    try:
+        result = watchlist_manager.clear_watchlist(user_id)
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"清空失败: {str(e)}")
+
+
+@router.get("/watchlist/stats")
+@rate_limit(requests_per_minute=30)
+@api_cache(ttl=60)
+async def get_watchlist_stats(user_id: str = Query(default='default')):
+    """
+    获取自选股统计信息
+    """
+    try:
+        stats = watchlist_manager.get_statistics(user_id)
+        return stats
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取统计失败: {str(e)}")
+
+
+@router.get("/watchlist/{symbol}/analysis")
+@rate_limit(requests_per_minute=30)
+@api_cache(ttl=120)
+async def get_watchlist_stock_analysis(
+    symbol: str,
+    user_id: str = Query(default='default'),
+    include_fundamentals: bool = Query(default=True)
+):
+    """
+    获取自选股的综合分析
+    
+    结合技术分析和基本面分析
+    """
+    try:
+        # 检查是否在自选股中
+        if not watchlist_manager.is_in_watchlist(symbol, user_id):
+            raise HTTPException(status_code=404, detail="股票不在自选列表中")
+        
+        # 获取技术分析（复用现有接口逻辑）
+        tech_analysis = None
+        for result in data_service._analysis_results:
+            if result.symbol == symbol:
+                tech_analysis = result
+                break
+        
+        if not tech_analysis:
+            from app.models.schemas import TrendDirection
+            df = data_fetcher.get_stock_history(symbol, days=60)
+            if not df.empty and len(df) >= 20:
+                tech_analysis = strategy_engine.analyze_stock(df, symbol, "")
+        
+        # 获取基本面数据
+        fundamental_data = None
+        if include_fundamentals:
+            df = data_service.get_realtime_data()
+            stock_info = df[df['symbol'] == symbol]
+            name = stock_info.iloc[0]['name'] if not stock_info.empty else ""
+            
+            fundamentals = fundamental_fetcher.get_fundamental_data(symbol, name)
+            if fundamentals:
+                fund_scores = fundamentals.calculate_fundamental_score()
+                fundamental_data = {
+                    'pe_ttm': fundamentals.pe_ttm,
+                    'pb': fundamentals.pb,
+                    'roe': round(fundamentals.roe * 100, 2) if fundamentals.roe else None,
+                    'scores': fund_scores
+                }
+        
+        # 获取实时行情
+        quote = data_service.get_stock_quote(symbol)
+        
+        return {
+            'symbol': symbol,
+            'name': tech_analysis.name if tech_analysis else quote.get('name', ''),
+            'quote': quote,
+            'technical': {
+                'score': tech_analysis.total_score if tech_analysis else None,
+                'trend': tech_analysis.trend_direction if tech_analysis else None,
+                'up_probability': tech_analysis.up_probability if tech_analysis else None,
+                'confidence': tech_analysis.confidence if tech_analysis else None
+            } if tech_analysis else None,
+            'fundamental': fundamental_data
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"分析失败: {str(e)}")
