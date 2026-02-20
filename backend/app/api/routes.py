@@ -1,7 +1,7 @@
 """
 API路由定义
 """
-from fastapi import APIRouter, HTTPException, Query, BackgroundTasks, Request
+from fastapi import APIRouter, HTTPException, Query, BackgroundTasks, Request, UploadFile, File
 from typing import List, Optional
 from datetime import datetime
 
@@ -20,6 +20,7 @@ from app.data.fetcher import data_fetcher
 from app.data.fundamentals import fundamental_fetcher, FundamentalData
 from app.core.decorators import rate_limit, api_cache, performance_monitor
 from app.models.watchlist import watchlist_manager
+from app.data.manager import data_manager, DatabaseBackend
 
 router = APIRouter()
 
@@ -1519,3 +1520,250 @@ async def get_watchlist_stock_analysis(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"分析失败: {str(e)}")
+
+
+# ========== 数据管理API ==========
+
+@router.get("/data/stats")
+@rate_limit(requests_per_minute=30)
+async def get_database_stats():
+    """
+    获取数据库统计信息
+    
+    返回：股票数量、记录数、日期范围、数据库大小
+    """
+    try:
+        stats = data_manager.get_database_stats()
+        return stats
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取统计失败: {str(e)}")
+
+
+@router.get("/data/symbols")
+@rate_limit(requests_per_minute=60)
+@api_cache(ttl=300)
+async def get_data_symbols():
+    """
+    获取数据库中的所有股票代码
+    """
+    try:
+        symbols = data_manager.get_symbol_list()
+        return {
+            'symbols': symbols,
+            'count': len(symbols)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取股票列表失败: {str(e)}")
+
+
+@router.get("/data/history/{symbol}")
+@rate_limit(requests_per_minute=120)
+@api_cache(ttl=60)
+async def get_stock_history_data(
+    symbol: str,
+    start_date: Optional[str] = Query(default=None, description="开始日期 YYYY-MM-DD"),
+    end_date: Optional[str] = Query(default=None, description="结束日期 YYYY-MM-DD"),
+    limit: Optional[int] = Query(default=None, ge=1, le=500, description="返回条数限制")
+):
+    """
+    获取股票历史数据（从数据库查询）
+    """
+    try:
+        df = data_manager.get_stock_history(symbol, start_date, end_date, limit)
+        
+        if df.empty:
+            raise HTTPException(status_code=404, detail=f"未找到 {symbol} 的历史数据")
+        
+        # 转换为字典列表
+        records = df.to_dict('records')
+        
+        # 转换日期格式
+        for record in records:
+            if 'date' in record and hasattr(record['date'], 'isoformat'):
+                record['date'] = record['date'].isoformat()
+        
+        return {
+            'symbol': symbol,
+            'data': records,
+            'count': len(records),
+            'start_date': records[0]['date'] if records else None,
+            'end_date': records[-1]['date'] if records else None
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取历史数据失败: {str(e)}")
+
+
+@router.get("/data/range/{symbol}")
+@rate_limit(requests_per_minute=60)
+@api_cache(ttl=300)
+async def get_stock_date_range(symbol: str):
+    """
+    获取股票数据的时间范围
+    """
+    try:
+        result = data_manager.get_date_range(symbol)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取时间范围失败: {str(e)}")
+
+
+@router.post("/data/import/csv")
+@rate_limit(requests_per_minute=10)
+async def import_csv(
+    file: UploadFile = File(...),
+    symbol: Optional[str] = Query(default=None, description="股票代码（可选，从文件名提取）")
+):
+    """
+    从CSV文件导入历史数据
+    
+    CSV格式要求：date, open, high, low, close, volume
+    """
+    try:
+        # 保存上传的文件
+        import tempfile
+        import os
+        
+        suffix = os.path.splitext(file.filename)[1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            content = await file.read()
+            tmp.write(content)
+            tmp_path = tmp.name
+        
+        try:
+            result = data_manager.import_from_csv(tmp_path, symbol)
+            return result
+        finally:
+            os.unlink(tmp_path)
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"CSV导入失败: {str(e)}")
+
+
+@router.post("/data/import/excel")
+@rate_limit(requests_per_minute=10)
+async def import_excel(file: UploadFile = File(...)):
+    """
+    从Excel文件导入历史数据
+    
+    每个sheet代表一只股票，sheet名为股票代码
+    """
+    try:
+        import tempfile
+        import os
+        
+        suffix = os.path.splitext(file.filename)[1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            content = await file.read()
+            tmp.write(content)
+            tmp_path = tmp.name
+        
+        try:
+            result = data_manager.import_from_excel(tmp_path)
+            return result
+        finally:
+            os.unlink(tmp_path)
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Excel导入失败: {str(e)}")
+
+
+@router.get("/data/export/csv/{symbol}")
+@rate_limit(requests_per_minute=30)
+async def export_csv(symbol: str):
+    """
+    导出股票历史数据为CSV
+    """
+    try:
+        import tempfile
+        
+        output_path = data_manager.export_to_csv(symbol)
+        
+        from fastapi.responses import FileResponse
+        return FileResponse(
+            output_path,
+            media_type='text/csv',
+            filename=f"{symbol}_export.csv"
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"导出失败: {str(e)}")
+
+
+@router.post("/data/export/excel")
+@rate_limit(requests_per_minute=30)
+async def export_excel(symbols: List[str]):
+    """
+    导出多只股票到Excel
+    
+    请求体：["600519", "000858", "300750"]
+    """
+    try:
+        output_path = data_manager.export_to_excel(symbols)
+        
+        from fastapi.responses import FileResponse
+        return FileResponse(
+            output_path,
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            filename="stocks_export.xlsx"
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"导出失败: {str(e)}")
+
+
+@router.get("/data/quality/check")
+@rate_limit(requests_per_minute=10)
+async def check_data_quality(
+    symbol: Optional[str] = Query(default=None, description="指定股票代码（不指定则检查所有）")
+):
+    """
+    检查数据质量
+    
+    检查项：缺失值、价格异常、时间序列缺口、重复数据
+    """
+    try:
+        result = data_manager.check_data_quality(symbol)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"质量检查失败: {str(e)}")
+
+
+@router.post("/data/quality/fix")
+@rate_limit(requests_per_minute=10)
+async def fix_data_issues(
+    symbol: str,
+    issue_type: str = Query(..., pattern="^(duplicates|missing_values)$")
+):
+    """
+    修复数据问题
+    
+    - duplicates: 删除重复数据
+    - missing_values: 插值填充缺失值
+    """
+    try:
+        result = data_manager.fix_data_issues(symbol, issue_type)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"修复失败: {str(e)}")
+
+
+@router.get("/data/completeness/{symbol}")
+@rate_limit(requests_per_minute=60)
+@api_cache(ttl=300)
+async def check_data_completeness(
+    symbol: str,
+    expected_days: int = Query(default=252, ge=1, le=500, description="预期交易日数")
+):
+    """
+    检查数据完整性
+    
+    返回数据缺失情况
+    """
+    try:
+        result = data_manager.check_missing_data(symbol, expected_days)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"检查失败: {str(e)}")

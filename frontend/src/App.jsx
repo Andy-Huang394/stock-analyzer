@@ -11,7 +11,8 @@ import {
   FireOutlined,
   PieChartOutlined,
   CrownOutlined,
-  ArrowLeftOutlined
+  ArrowLeftOutlined,
+  DatabaseOutlined
 } from '@ant-design/icons';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import MarketOverview from './components/MarketOverview';
@@ -24,6 +25,7 @@ import StockSearch from './components/StockSearch';
 import FundFlow from './components/FundFlow';
 import SectorHeat from './components/SectorHeat';
 import Portfolio from './components/Portfolio';
+import DataManager from './components/DataManager';
 import './styles/theme.css';
 
 const { Header, Content, Sider } = Layout;
@@ -72,6 +74,11 @@ const Navigation = () => {
       label: <Link to="/alerts">价格预警</Link>,
     },
     {
+      key: '/data',
+      icon: <DatabaseOutlined />,
+      label: <Link to="/data">数据管理</Link>,
+    },
+    {
       key: '/strategy',
       icon: <SettingOutlined />,
       label: <Link to="/strategy">策略配置</Link>,
@@ -108,6 +115,7 @@ const PageHeader = () => {
     '/portfolio': '投资组合分析',
     '/watchlist': '自选股管理',
     '/alerts': '价格预警',
+    '/data': '数据管理',
     '/strategy': '策略参数配置'
   };
 
@@ -272,6 +280,7 @@ const MobileLayout = ({ children }) => {
     { key: '/portfolio', icon: <PieChartOutlined />, label: '投资组合' },
     { key: '/watchlist', icon: <StarOutlined />, label: '自选股' },
     { key: '/alerts', icon: <BellOutlined />, label: '价格预警' },
+    { key: '/data', icon: <DatabaseOutlined />, label: '数据管理' },
     { key: '/strategy', icon: <SettingOutlined />, label: '策略配置' },
   ];
 
@@ -535,6 +544,7 @@ const App = () => {
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/watchlist" element={<WatchlistPage />} />
           <Route path="/alerts" element={<AlertsPage />} />
+          <Route path="/data" element={<DataManager />} />
           <Route path="/strategy" element={<StrategyConfig />} />
           <Route path="/stock/:symbol" element={<StockDetailPage />} />
         </Routes>
