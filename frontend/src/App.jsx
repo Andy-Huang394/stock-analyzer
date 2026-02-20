@@ -21,6 +21,7 @@ import StrategyConfig from './components/StrategyConfig';
 import Watchlist from './components/Watchlist';
 import PriceAlert from './components/PriceAlert';
 import StockChart from './components/StockChart';
+import StockChartPro from './components/StockChartPro';
 import StockSearch from './components/StockSearch';
 import FundFlow from './components/FundFlow';
 import SectorHeat from './components/SectorHeat';
@@ -251,6 +252,47 @@ const StockDetailPage = () => {
           </div>
         </Col>
       </Row>
+    </div>
+  );
+};
+
+/**
+ * 专业K线图表页面
+ */
+const StockChartProPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const symbol = location.pathname.split('/').pop();
+  
+  return (
+    <div>
+      <div style={{ 
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Button 
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
+          >
+            返回
+          </Button>
+          <span style={{ color: 'var(--text-muted)' }}>
+            {symbol} 专业图表
+          </span>
+        </div>
+        
+        <Button 
+          type="primary"
+          onClick={() => navigate(`/stock/${symbol}`)}
+        >
+          标准视图
+        </Button>
+      </div>
+      
+      <StockChartPro symbol={symbol} height={600} />
     </div>
   );
 };
@@ -547,6 +589,7 @@ const App = () => {
           <Route path="/data" element={<DataManager />} />
           <Route path="/strategy" element={<StrategyConfig />} />
           <Route path="/stock/:symbol" element={<StockDetailPage />} />
+          <Route path="/chart/:symbol" element={<StockChartProPage />} />
         </Routes>
       </ResponsiveLayout>
     </Router>
