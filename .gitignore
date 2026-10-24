@@ -25,3 +25,11 @@ build/
 # 排除缓存文件
 *.db
 *.db-journal
+
+# Python / 构建产物
+venv/
+backend/venv/
+__pycache__/
+*.pyc
+frontend/build/
+*.jar
