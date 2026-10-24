@@ -29,6 +29,12 @@ build/
 # Python / 构建产物
 venv/
 backend/venv/
+backend/.venv/
+.npm-cache/
+.uv-cache/
+.tmp/
+.wheels/
+pip-install.log
 __pycache__/
 *.pyc
 frontend/build/

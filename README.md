@@ -25,9 +25,39 @@
 
 ## 快速开始
 
-环境：WSL / Linux / macOS，Python ≥ 3.10，Node.js ≥ 18。
+环境：Windows（Python 3.12、Node.js ≥ 18）或 WSL / Linux / macOS。此项目现在位于 `C:\生产力工具\QuantKit\stock-analyzer`，与上一级的 QuantKit 是两个**独立项目**，不要混用虚拟环境或启动脚本。
 
-### 一键启动
+### Windows（当前电脑）
+
+在 PowerShell 中进入此项目目录，首次安装：
+
+```powershell
+cd 'C:\生产力工具\QuantKit\stock-analyzer'
+python -m venv backend\.venv
+# Python 3.12 建议用 uv（Windows 的原 pip 解算此依赖树可能很慢）
+# 首次如没有 uv：python -m pip install uv（或者：backend\.venv\Scripts\python.exe -m pip install uv）
+# 本机已安装在 backend\.venv 内，用该 venv 的 uv.exe 即可
+$env:UV_CACHE_DIR = "$PWD\.uv-cache"
+$env:TEMP = "$PWD\.tmp"; $env:TMP = $env:TEMP
+New-Item -ItemType Directory -Force .tmp | Out-Null
+backend\.venv\Scripts\uv.exe pip install --python backend\.venv\Scripts\python.exe -r backend\requirements-windows.txt pytest
+cd frontend
+npm ci
+cd ..
+```
+
+以后启动：
+
+```powershell
+cd 'C:\生产力工具\QuantKit\stock-analyzer'
+powershell -NoProfile -ExecutionPolicy Bypass -File .\start-windows.ps1
+```
+
+前端 http://127.0.0.1:3000 ，API 文档 http://127.0.0.1:8000/docs 。三份 SQLite 数据已从旧 WSL 工程复制到 `backend/`；不要随意覆盖。`days=800` 是查询自然日区间，不等于 800 根交易日 K 线，必须检查实际返回条数。
+
+以下是原有的 WSL / Linux 启动方式：
+
+### WSL / Linux 一键启动
 
 ```bash
 ./start.sh        # 自动创建 backend/venv、安装依赖，并同时启动前后端
