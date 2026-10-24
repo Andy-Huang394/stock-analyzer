@@ -10,7 +10,6 @@ import {
   MoneyCollectOutlined,
   FireOutlined,
   PieChartOutlined,
-  CrownOutlined,
   ArrowLeftOutlined,
   DatabaseOutlined
 } from '@ant-design/icons';
@@ -95,30 +94,84 @@ const Navigation = () => {
       style={{ 
         background: 'transparent',
         borderRight: 'none',
-        padding: '8px 0'
+        padding: '8px 0',
+        fontSize: '13px'
       }}
     />
   );
 };
 
 /**
- * 页面标题
+ * 品牌标识：小方块 + 文字，不使用装饰性图标或渐变
+ */
+const BrandMark = () => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    color: 'var(--text-primary)',
+    fontSize: '14px',
+    fontWeight: 600,
+    letterSpacing: '-0.01em'
+  }}>
+    <span aria-hidden="true" style={{
+      width: '18px',
+      height: '18px',
+      borderRadius: '5px',
+      background: 'var(--text-primary)',
+      color: 'var(--bg-base)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <LineChartOutlined style={{ fontSize: '11px' }} />
+    </span>
+    Stock Analyzer
+  </div>
+);
+
+const PAGE_TITLES = {
+  '/': '市场概览',
+  '/analysis': '智能选股分析',
+  '/fundflow': '资金流向分析',
+  '/sectors': '板块热点追踪',
+  '/portfolio': '投资组合分析',
+  '/watchlist': '自选股管理',
+  '/alerts': '价格预警',
+  '/data': '数据管理',
+  '/strategy': '策略参数配置'
+};
+
+const getPageTitle = (pathname) => {
+  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
+  if (pathname.startsWith('/stock/')) return '个股详情';
+  if (pathname.startsWith('/chart/')) return '专业图表';
+  return 'Stock Analyzer';
+};
+
+/**
+ * 内容区页面标题（Orca：28px / 700 / 轻微负字距）
+ */
+const PageTitle = ({ compact = false }) => {
+  const location = useLocation();
+  return (
+    <h1
+      className="page-title"
+      style={{
+        marginBottom: compact ? '16px' : '24px',
+        fontSize: compact ? '22px' : '28px'
+      }}
+    >
+      {getPageTitle(location.pathname)}
+    </h1>
+  );
+};
+
+/**
+ * 顶栏：搜索 + 时间
  */
 const PageHeader = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  
-  const titles = {
-    '/': '市场概览',
-    '/analysis': '智能选股分析',
-    '/fundflow': '资金流向分析',
-    '/sectors': '板块热点追踪',
-    '/portfolio': '投资组合分析',
-    '/watchlist': '自选股管理',
-    '/alerts': '价格预警',
-    '/data': '数据管理',
-    '/strategy': '策略参数配置'
-  };
 
   return (
     <div style={{ 
@@ -126,25 +179,14 @@ const PageHeader = () => {
       alignItems: 'center', 
       justifyContent: 'space-between',
       padding: '0 24px',
-      width: '100%'
+      width: '100%',
+      gap: '16px'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-        <Title level={3} style={{ 
-          margin: 0, 
-          color: 'var(--text-primary)',
-          fontWeight: '600',
-          fontSize: '20px',
-          whiteSpace: 'nowrap',
-          fontFamily: 'var(--font-display)',
-          letterSpacing: '0.5px'
-        }}>
-          {titles[location.pathname] || 'Stock Analyzer'}
-        </Title>
-        
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
         <div style={{ maxWidth: '320px', width: '100%' }}>
           <StockSearch 
             size="small"
-            placeholder="搜索股票..."
+            placeholder="搜索股票代码或名称"
             onSelect={(symbol, name) => {
               navigate(`/stock/${symbol}`);
             }}
@@ -152,12 +194,10 @@ const PageHeader = () => {
         </div>
       </div>
       
-      <div style={{ 
-        fontFamily: 'var(--font-mono)',
-        fontSize: '13px',
-        color: 'var(--gold-primary)',
-        whiteSpace: 'nowrap',
-        letterSpacing: '0.5px'
+      <div className="num" style={{ 
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        whiteSpace: 'nowrap'
       }}>
         {new Date().toLocaleString('zh-CN', {
           month: '2-digit',
@@ -177,7 +217,7 @@ const WatchlistPage = () => {
   const navigate = useNavigate();
   
   return (
-    <Row gutter={[20, 20]}>
+    <Row gutter={[16, 16]}>
       <Col xs={24} lg={16}>
         <Watchlist onSelectStock={(stock) => navigate(`/stock/${stock.symbol}`)} />
       </Col>
@@ -192,7 +232,7 @@ const WatchlistPage = () => {
  * 预警页面
  */
 const AlertsPage = () => (
-  <Row gutter={[20, 20]}>
+  <Row gutter={[16, 16]}>
     <Col xs={24} lg={16}>
       <PriceAlert />
     </Col>
@@ -222,32 +262,24 @@ const StockDetailPage = () => {
         <Button 
           icon={<ArrowLeftOutlined />}
           onClick={() => navigate(-1)}
-          style={{
-            background: 'var(--bg-tertiary)',
-            borderColor: 'var(--border-color)',
-            color: 'var(--text-secondary)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
         >
           返回
         </Button>
         <span style={{ 
-          color: 'var(--text-muted)',
+          color: 'var(--text-secondary)',
           fontSize: '13px'
         }}>
-          {symbol} 详情
+          <span className="num" style={{ color: 'var(--text-primary)' }}>{symbol}</span> 详情
         </span>
       </div>
       
-      <Row gutter={[20, 20]}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} lg={16}>
           <StockChart symbol={symbol} />
         </Col>
         <Col xs={24} lg={8}>
           <PriceAlert symbol={symbol} />
-          <div style={{ marginTop: '20px' }}>
+          <div style={{ marginTop: '16px' }}>
             <Watchlist />
           </div>
         </Col>
@@ -279,8 +311,8 @@ const StockChartProPage = () => {
           >
             返回
           </Button>
-          <span style={{ color: 'var(--text-muted)' }}>
-            {symbol} 专业图表
+          <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
+            <span className="num" style={{ color: 'var(--text-primary)' }}>{symbol}</span> 专业图表
           </span>
         </div>
         
@@ -339,31 +371,30 @@ const MobileLayout = ({ children }) => {
       
       <Layout style={{ background: 'transparent' }}>
         <Header style={{
-          background: 'var(--bg-secondary)',
-          borderBottom: '1px solid var(--border-gold)',
-          padding: '0 16px',
+          background: 'var(--bg-base)',
+          borderBottom: '1px solid var(--border-color)',
+          padding: '0 12px',
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          height: '64px',
+          height: '52px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <MenuOutlined 
-              style={{ 
-                color: 'var(--gold-primary)', 
-                fontSize: '20px',
-                cursor: 'pointer'
-              }}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Button
+              type="text"
+              aria-label="打开导航菜单"
+              icon={<MenuOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setDrawerVisible(true)}
+              style={{ color: 'var(--text-secondary)' }}
             />
             <Title level={4} style={{ 
               margin: 0, 
-              color: 'var(--gold-primary)',
-              fontSize: '16px',
-              fontFamily: 'var(--font-display)'
+              color: 'var(--text-primary)',
+              fontSize: '14px',
+              fontWeight: 600
             }}>
               Stock Analyzer
             </Title>
@@ -389,28 +420,17 @@ const MobileLayout = ({ children }) => {
                 width: '240px',
                 height: '100%',
                 background: 'var(--bg-secondary)',
-                borderRight: '1px solid var(--border-gold)',
-                paddingTop: '20px'
+                borderRight: '1px solid var(--border-color)',
+                paddingTop: '16px'
               }}
               onClick={e => e.stopPropagation()}
             >
               <div style={{ 
-                padding: '0 20px 20px',
-                borderBottom: '1px solid var(--border-gold)',
-                marginBottom: '10px'
+                padding: '0 16px 16px',
+                borderBottom: '1px solid var(--border-color)',
+                marginBottom: '8px'
               }}>
-                <div style={{ 
-                  color: 'var(--gold-primary)',
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  fontFamily: 'var(--font-display)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <CrownOutlined />
-                  Stock Analyzer
-                </div>
+                <BrandMark />
               </div>
               
               <Menu
@@ -425,15 +445,16 @@ const MobileLayout = ({ children }) => {
                 }))}
               />
             </div>
-            <div style={{ flex: 1, background: 'rgba(0,0,0,0.7)' }}></div>
+            <div style={{ flex: 1, background: 'rgba(0,0,0,0.6)' }}></div>
           </div>
         )}
 
         <Content style={{ 
-          margin: '16px',
+          padding: '16px 14px 32px',
           background: 'transparent',
-          minHeight: 'calc(100vh - 96px)'
+          minHeight: 'calc(100vh - 52px)'
         }}>
+          <PageTitle compact />
           {children}
         </Content>
       </Layout>
@@ -450,36 +471,22 @@ const DesktopLayout = ({ children }) => (
       width={220}
       style={{
         background: 'var(--bg-secondary)',
-        borderRight: '1px solid var(--border-gold)',
+        borderRight: '1px solid var(--border-color)',
         position: 'fixed',
         height: '100vh',
         overflow: 'auto'
       }}
     >
       <div style={{ 
-        padding: '24px 20px',
-        borderBottom: '1px solid var(--border-gold)',
+        padding: '16px 16px 16px',
+        borderBottom: '1px solid var(--border-color)',
       }}>
+        <BrandMark />
         <div style={{ 
-          color: 'var(--gold-primary)',
-          fontSize: '20px',
-          fontWeight: '700',
-          fontFamily: 'var(--font-display)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          letterSpacing: '0.5px'
-        }}>
-          <CrownOutlined style={{ fontSize: '22px' }} />
-          Stock Analyzer
-        </div>
-        <div style={{ 
-          color: 'var(--text-muted)',
-          fontSize: '11px',
-          marginTop: '6px',
-          marginLeft: '32px',
-          textTransform: 'uppercase',
-          letterSpacing: '1.5px'
+          color: 'var(--text-secondary)',
+          fontSize: '12px',
+          marginTop: '4px',
+          marginLeft: '28px'
         }}>
           A股量化分析平台
         </div>
@@ -489,32 +496,20 @@ const DesktopLayout = ({ children }) => (
       
       <div style={{ 
         position: 'absolute',
-        bottom: '20px',
+        bottom: '16px',
         left: '16px',
         right: '16px',
-        padding: '12px 14px',
-        background: 'var(--bg-tertiary)',
-        borderRadius: 'var(--radius-md)',
-        border: '1px solid var(--border-color)',
-        textAlign: 'center'
+        paddingTop: '12px',
+        borderTop: '1px solid var(--border-color)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        fontSize: '12px',
+        color: 'var(--text-secondary)'
       }}>
-        <div style={{ 
-          fontSize: '10px', 
-          color: 'var(--text-muted)',
-          textTransform: 'uppercase',
-          letterSpacing: '1px'
-        }}>
-          Powered by
-        </div>
-        <div style={{ 
-          color: 'var(--gold-primary)',
-          fontSize: '13px',
-          fontWeight: '600',
-          marginTop: '2px',
-          fontFamily: 'var(--font-display)'
-        }}>
-          贾维斯
-        </div>
+        <span className="status-dot" style={{ color: 'var(--success-color)' }} aria-hidden="true" />
+        <span>Powered by</span>
+        <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>贾维斯</span>
       </div>
     </Sider>
 
@@ -523,13 +518,13 @@ const DesktopLayout = ({ children }) => (
       background: 'transparent'
     }}>
       <Header style={{
-        background: 'var(--bg-secondary)',
-        borderBottom: '1px solid var(--border-gold)',
+        background: 'var(--bg-base)',
+        borderBottom: '1px solid var(--border-color)',
         padding: '0',
         position: 'sticky',
         top: 0,
-        zIndex: 1,
-        height: '64px',
+        zIndex: 10,
+        height: '52px',
         display: 'flex',
         alignItems: 'center'
       }}>
@@ -537,11 +532,14 @@ const DesktopLayout = ({ children }) => (
       </Header>
 
       <Content style={{ 
-        margin: '24px',
+        padding: '28px 32px 40px',
         background: 'transparent',
-        minHeight: 'calc(100vh - 112px)'
+        minHeight: 'calc(100vh - 52px)'
       }}>
-        {children}
+        <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+          <PageTitle />
+          {children}
+        </div>
       </Content>
     </Layout>
   </Layout>
@@ -575,8 +573,6 @@ const ResponsiveLayout = ({ children }) => {
 const App = () => {
   return (
     <Router>
-      <div className="bg-grid" />
-      
       <ResponsiveLayout>
         <Routes>
           <Route path="/" element={<Dashboard />} />

@@ -230,7 +230,7 @@ const DataManager = () => {
                   <Statistic 
                     title="股票数量" 
                     value={stats.total_symbols || 0}
-                    valueStyle={{ color: 'var(--gold-primary)', fontSize: '28px' }}
+                    valueStyle={{ color: 'var(--text-primary)', fontSize: '24px' }}
                     prefix={<DatabaseOutlined />}
                   />
                 </LuxuryCard>

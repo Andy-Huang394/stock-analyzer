@@ -506,9 +506,9 @@ const PriceAlert = ({
           <div style={{ 
             marginBottom: '12px', 
             padding: '8px 12px',
-            background: 'rgba(248, 81, 73, 0.1)',
-            border: '1px solid var(--danger-color)',
-            borderRadius: '4px',
+            background: 'var(--warning-soft)',
+            border: '1px solid rgba(214, 162, 58, 0.35)',
+            borderRadius: 'var(--radius-sm)',
             fontSize: '12px'
           }}>
             ⚠️ 请

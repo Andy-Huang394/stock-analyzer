@@ -147,9 +147,9 @@ const AnalysisResults = () => {
 
   const getTrendColor = (trend) => {
     switch (trend) {
-      case 'up': return 'var(--success-color)';
-      case 'down': return 'var(--danger-color)';
-      default: return 'var(--warning-color)';
+      case 'up': return 'var(--up-color)';
+      case 'down': return 'var(--down-color)';
+      default: return 'var(--flat-color)';
     }
   };
 
@@ -206,21 +206,23 @@ const AnalysisResults = () => {
       align: 'center',
       render: (_, __, index) => {
         const rank = getRealRank(index);
-        const bgColor = rank <= 3 ? 'var(--danger-color)' : rank <= 10 ? 'var(--warning-color)' : 'var(--text-muted)';
+        const isTop = rank <= 3;
         return (
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            minWidth: '22px',
+            minWidth: '24px',
             height: '22px',
             padding: '0 6px',
-            borderRadius: '11px',
-            backgroundColor: bgColor,
-            color: '#fff',
+            borderRadius: '6px',
+            background: isTop ? 'var(--bg-elevated)' : 'transparent',
+            border: isTop ? '1px solid var(--line-strong)' : '1px solid transparent',
+            color: rank <= 10 ? 'var(--text-primary)' : 'var(--text-secondary)',
             fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'var(--font-mono)'
+            fontWeight: isTop ? 600 : 500,
+            fontFamily: 'var(--font-mono)',
+            fontVariantNumeric: 'tabular-nums'
           }}>
             {rank}
           </div>
@@ -234,7 +236,7 @@ const AnalysisResults = () => {
       width: 110,
       render: (symbol, record) => (
         <div style={{ cursor: 'pointer' }} onClick={() => navigate(`/stock/${symbol}`)}>
-          <div style={{ fontWeight: '600', fontSize: '14px' }}>{symbol}</div>
+          <div className="num" style={{ fontWeight: '500', fontSize: '13px' }}>{symbol}</div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{record.name}</div>
         </div>
       )
@@ -255,7 +257,7 @@ const AnalysisResults = () => {
       width: 85,
       align: 'right',
       render: (price) => (
-        <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '500' }}>
+        <span className="num" style={{ fontWeight: '500' }}>
           ¥{price?.toFixed(2)}
         </span>
       )
@@ -281,7 +283,9 @@ const AnalysisResults = () => {
           align: 'center',
           render: (prob) => prob ? (
             <span style={{ 
-              color: prob >= 0.6 ? 'var(--success-color)' : prob <= 0.4 ? 'var(--danger-color)' : 'var(--text-secondary)',
+              color: prob >= 0.6 ? 'var(--up-color)' : prob <= 0.4 ? 'var(--down-color)' : 'var(--text-secondary)',
+              fontFamily: 'var(--font-mono)',
+              fontVariantNumeric: 'tabular-nums',
               fontWeight: 600,
               fontSize: '13px'
             }}>
@@ -296,7 +300,9 @@ const AnalysisResults = () => {
           align: 'center',
           render: (prob) => prob ? (
             <span style={{ 
-              color: prob >= 0.6 ? 'var(--success-color)' : prob <= 0.4 ? 'var(--danger-color)' : 'var(--text-secondary)',
+              color: prob >= 0.6 ? 'var(--up-color)' : prob <= 0.4 ? 'var(--down-color)' : 'var(--text-secondary)',
+              fontFamily: 'var(--font-mono)',
+              fontVariantNumeric: 'tabular-nums',
               fontWeight: 500,
               fontSize: '12px'
             }}>
@@ -311,7 +317,9 @@ const AnalysisResults = () => {
           align: 'center',
           render: (prob) => prob ? (
             <span style={{ 
-              color: prob >= 0.6 ? 'var(--success-color)' : prob <= 0.4 ? 'var(--danger-color)' : 'var(--text-secondary)',
+              color: prob >= 0.6 ? 'var(--up-color)' : prob <= 0.4 ? 'var(--down-color)' : 'var(--text-secondary)',
+              fontFamily: 'var(--font-mono)',
+              fontVariantNumeric: 'tabular-nums',
               fontWeight: 500,
               fontSize: '12px'
             }}
@@ -329,15 +337,16 @@ const AnalysisResults = () => {
       width: 80,
       align: 'center',
       render: (trend) => (
-        <Tag style={{ 
-          background: 'transparent',
-          border: `1px solid ${getTrendColor(trend)}`,
-          color: getTrendColor(trend),
-          fontSize: '12px',
-          padding: '0 8px'
+        <span style={{ 
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          color: 'var(--text-primary)',
+          fontSize: '12px'
         }}>
+          <span className="status-dot" style={{ color: getTrendColor(trend) }} aria-hidden="true" />
           {getTrendText(trend)}
-        </Tag>
+        </span>
       )
     },
     {
@@ -348,20 +357,25 @@ const AnalysisResults = () => {
       render: (signals) => (
         <Space size="small" wrap>
           {signals?.slice(0, 4).map((signal, idx) => {
-            let color = 'var(--text-muted)';
-            if (signal.signal > 0) color = 'var(--success-color)';
-            else if (signal.signal < 0) color = 'var(--danger-color)';
+            let color = 'var(--flat-color)';
+            let mark = '·';
+            if (signal.signal > 0) { color = 'var(--up-color)'; mark = '+'; }
+            else if (signal.signal < 0) { color = 'var(--down-color)'; mark = '−'; }
             
             return (
               <Tooltip key={idx} title={signal.description}>
                 <span style={{ 
-                  fontSize: '10px',
-                  color: color,
-                  border: `1px solid ${color}`,
-                  padding: '1px 4px',
-                  borderRadius: '3px',
-                  opacity: 0.7
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                  fontSize: '11px',
+                  color: 'var(--text-secondary)',
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-color)',
+                  padding: '0 5px',
+                  borderRadius: '5px'
                 }}>
+                  <span style={{ color, fontFamily: 'var(--font-mono)', fontWeight: 600 }} aria-hidden="true">{mark}</span>
                   {signal.name}
                 </span>
               </Tooltip>
@@ -390,8 +404,10 @@ const AnalysisResults = () => {
             <Button 
               icon={isInWatchlist(record.symbol) ? <StarFilled /> : <StarOutlined />}
               size="small"
-              type={isInWatchlist(record.symbol) ? 'primary' : 'default'}
-              style={isInWatchlist(record.symbol) ? { color: '#fadb14', borderColor: '#fadb14' } : {}}
+              type="default"
+              aria-pressed={isInWatchlist(record.symbol)}
+              aria-label={isInWatchlist(record.symbol) ? '移除自选' : '加入自选'}
+              style={isInWatchlist(record.symbol) ? { color: 'var(--accent)', borderColor: 'var(--accent-line)' } : {}}
               onClick={() => {
                 if (isInWatchlist(record.symbol)) {
                   removeFromWatchlist(record.symbol);
@@ -444,17 +460,18 @@ const AnalysisResults = () => {
           </div>
         </div>
       }
-      style={{ marginTop: '24px' }}
+      style={{ marginTop: '16px' }}
     >
       {/* 控制栏 */}
       <div style={{ 
-        marginBottom: '20px',
-        padding: '16px',
+        marginBottom: '16px',
+        padding: '12px',
         background: 'var(--bg-tertiary)',
-        borderRadius: '8px',
+        border: '1px solid var(--border-color)',
+        borderRadius: 'var(--radius-md)',
         display: 'flex',
         alignItems: 'center',
-        gap: '20px',
+        gap: '16px',
         flexWrap: 'wrap'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -550,7 +567,7 @@ const AnalysisResults = () => {
         fontSize: '13px', 
         color: 'var(--text-secondary)',
         display: 'flex',
-        gap: '20px'
+        gap: '16px'
       }}>
         <span>
           共 <strong style={{ color: 'var(--text-primary)' }}>{searchText ? filteredData.length : pagination.total}</strong> 只股票

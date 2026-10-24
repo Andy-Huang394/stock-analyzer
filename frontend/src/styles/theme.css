@@ -1,77 +1,98 @@
 /**
- * 金融黑金奢华风格主题 v3.0
- * Financial Luxury Black & Gold Theme
- * 设计理念：深邃黑底 + 金色点缀 + 精致质感
+ * Stock Analyzer 主题 v4.0 — Orca 风格
+ * 设计理念：克制、专业、精确的开发者工具风。
+ * 用背景层级 + 1px 极弱边框区分区域；主色只用于选中 / 链接 / 进行中。
+ * 涨跌色遵循 A 股习惯：红涨绿跌，统一由 --up-color / --down-color 控制。
+ * JS 侧（antd token、ECharts、lightweight-charts）的同名色值在 src/styles/palette.js。
  */
 
 :root {
-  /* === 主色调 - 黑金奢华 === */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #111118;
-  --bg-tertiary: #1a1a24;
-  --bg-elevated: #22222e;
-  --bg-card: #15151c;
-  
-  /* === 金色系 - 核心点缀 === */
-  --gold-primary: #d4a853;
-  --gold-light: #e8c87a;
-  --gold-dark: #b8933f;
-  --gold-muted: #8b7355;
-  --gold-glow: rgba(212, 168, 83, 0.3);
-  
-  /* === 琥珀/暖色调 === */
-  --amber-primary: #f59e0b;
-  --amber-light: #fbbf24;
-  --amber-dark: #d97706;
-  
-  /* === 辅助色 === */
-  --success-color: #10b981;
-  --success-glow: rgba(16, 185, 129, 0.3);
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --danger-glow: rgba(239, 68, 68, 0.3);
-  --info-color: #3b82f6;
-  
-  /* === 涨跌色 - 金融红绿 === */
-  --up-color: #10b981;
-  --up-bg: rgba(16, 185, 129, 0.08);
-  --down-color: #ef4444;
-  --down-bg: rgba(239, 68, 68, 0.08);
-  
-  /* === 文字色 === */
-  --text-primary: #fafaf9;
-  --text-secondary: #a8a29e;
-  --text-muted: #78716c;
-  --text-gold: #d4a853;
-  
-  /* === 边框和分割 === */
-  --border-color: #292524;
-  --border-light: #1c1917;
-  --border-gold: rgba(212, 168, 83, 0.2);
-  
-  /* === 渐变 === */
-  --gradient-gold: linear-gradient(135deg, #d4a853 0%, #e8c87a 50%, #d4a853 100%);
-  --gradient-gold-radial: radial-gradient(ellipse at top, rgba(212, 168, 83, 0.15) 0%, transparent 50%);
-  --gradient-dark: linear-gradient(180deg, #111118 0%, #0a0a0f 100%);
-  --gradient-card: linear-gradient(145deg, #15151c 0%, #1a1a24 100%);
-  
-  /* === 阴影 === */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
-  --shadow-gold: 0 0 20px rgba(212, 168, 83, 0.15);
-  --shadow-gold-strong: 0 0 30px rgba(212, 168, 83, 0.25);
-  
+  color-scheme: dark;
+
+  /* === 表面层级 === */
+  --bg-base: #08090a;            /* 页面背景 */
+  --bg-surface-1: #0e0f11;       /* 一级表面：卡片、侧栏 */
+  --bg-surface-2: #141517;       /* 二级表面：卡片内区块、表头、输入框 */
+  --bg-surface-3: #1a1b1e;       /* 弱表面：hover、选中底 */
+
+  /* === 文字 === */
+  --fg: #f7f8f8;
+  --fg-secondary: #8a8f98;       /* 对 #08090a 约 6.3:1，对 #1a1b1e 约 5.3:1 */
+  --fg-muted: #7d828b;           /* 弱提示，仍满足 AA（约 5:1） */
+
+  /* === 边框 === */
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --line-input: rgba(255, 255, 255, 0.10);
+
+  /* === 主色（克制的冷色，用量要少） === */
+  --accent: #7c86ff;
+  --accent-strong: #5e6ad2;
+  --accent-hover: #a3aaff;
+  --accent-soft: rgba(124, 134, 255, 0.12);
+  --accent-line: rgba(124, 134, 255, 0.35);
+
+  /* === 语义色 === */
+  --success-color: #30a46c;
+  --warning-color: #d6a23a;
+  --danger-color: #e5484d;
+  --info-color: #7c86ff;
+  --success-soft: rgba(48, 164, 108, 0.12);
+  --warning-soft: rgba(214, 162, 58, 0.12);
+  --danger-soft: rgba(229, 72, 77, 0.12);
+
+  /* === 涨跌色（A 股：红涨绿跌） === */
+  --up-color: #e5484d;
+  --up-bg: rgba(229, 72, 77, 0.10);
+  --down-color: #30a46c;
+  --down-bg: rgba(48, 164, 108, 0.10);
+  --flat-color: #8a8f98;
+
+  /* === 图表系列色（低饱和） === */
+  --series-1: #8b93c9;
+  --series-2: #c2a36b;
+  --series-3: #6fa6a0;
+  --series-4: #a68bb8;
+
   /* === 字体 === */
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  
-  /* === 圆角 === */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", Consolas, "Liberation Mono",
+    "PingFang SC", "Microsoft YaHei", monospace;
+
+  /* === 圆角 / 间距 / 动效 === */
+  --radius-sm: 7px;   /* 小控件、标签 */
+  --radius-md: 9px;   /* 控件、卡片内区块 */
+  --radius-lg: 12px;  /* 卡片 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --transition: color 150ms var(--ease), background-color 150ms var(--ease),
+    border-color 150ms var(--ease), box-shadow 150ms var(--ease);
+
+  /* === 阴影：几乎不用，仅浮层 === */
+  --shadow-sm: none;
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  /* ------------------------------------------------------------------
+   * 兼容别名：组件内仍在使用的旧结构变量名，映射到新调色板。
+   * ------------------------------------------------------------------ */
+  --bg-primary: var(--bg-base);
+  --bg-secondary: var(--bg-surface-1);
+  --bg-card: var(--bg-surface-1);
+  --bg-tertiary: var(--bg-surface-2);
+  --bg-elevated: var(--bg-surface-3);
+  --text-primary: var(--fg);
+  --text-secondary: var(--fg-secondary);
+  --text-muted: var(--fg-muted);
+  --primary-color: var(--accent);
+  --border-color: var(--line);
+  --border-light: var(--line);
 }
 
 * {
@@ -80,514 +101,490 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  background: var(--bg-base);
+}
+
 body {
   font-family: var(--font-sans);
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  font-size: 14px;
+  color: var(--fg);
   min-height: 100vh;
-  line-height: 1.6;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* === 滚动条 - 金色点缀 === */
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+::selection {
+  background: rgba(124, 134, 255, 0.3);
+}
+
+/* === 键盘焦点 === */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* === 滚动条 === */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-muted);
+  background: rgba(255, 255, 255, 0.16);
 }
 
-/* === 背景效果 - 渐变网格 + 噪点 === */
-.bg-grid {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(212, 168, 83, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 1px 1px, rgba(212, 168, 83, 0.03) 1px, transparent 0);
-  background-size: 100% 100%, 32px 32px;
+/* === 页面标题区 === */
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--fg);
 }
 
-.bg-grid::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.03;
-  pointer-events: none;
+.section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
 }
 
-/* === 卡片样式 - 玻璃拟态 === */
-.luxury-card {
-  background: var(--gradient-card);
-  border: 1px solid rgba(212, 168, 83, 0.08);
+.text-help {
+  font-size: 12px;
+  color: var(--fg-secondary);
+}
+
+/* === 卡片 === */
+.surface-card {
+  background: var(--bg-surface-1);
+  border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: var(--space-5);
+  transition: var(--transition);
   position: relative;
-  overflow: hidden;
-  box-shadow: 
-    0 4px 24px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
-.luxury-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(212, 168, 83, 0.3) 20%, 
-    rgba(212, 168, 83, 0.5) 50%, 
-    rgba(212, 168, 83, 0.3) 80%, 
-    transparent 100%
-  );
-  opacity: 0.6;
+.surface-card:hover {
+  border-color: var(--line-strong);
 }
 
-.luxury-card:hover {
-  border-color: rgba(212, 168, 83, 0.15);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(212, 168, 83, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
+.surface-card__header {
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
-/* === 按钮样式 - 金色奢华 === */
-.luxury-button {
+.surface-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.surface-card__subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--fg-secondary);
+}
+
+/* === 按钮（非 antd） === */
+.ui-button,
+.scifi-button {
   background: transparent;
-  border: 1px solid var(--gold-primary);
-  color: var(--gold-primary);
-  padding: 10px 20px;
+  border: 1px solid var(--line-input);
+  color: var(--fg);
+  height: 34px;
+  padding: 0 14px;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   border-radius: var(--radius-md);
-  transition: all 0.3s ease;
+  transition: var(--transition);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  position: relative;
-  overflow: hidden;
 }
 
-.luxury-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(212, 168, 83, 0.1), transparent);
-  transition: left 0.5s ease;
+.ui-button:hover,
+.scifi-button:hover {
+  background: var(--bg-surface-3);
+  border-color: var(--line-strong);
 }
 
-.luxury-button:hover::before {
-  left: 100%;
-}
-
-.luxury-button:hover {
-  background: rgba(212, 168, 83, 0.1);
-  box-shadow: var(--shadow-gold);
-  transform: translateY(-1px);
-}
-
-.luxury-button.primary {
-  background: var(--gradient-gold);
-  border-color: var(--gold-primary);
-  color: var(--bg-primary);
+.ui-button.primary,
+.scifi-button.primary {
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--bg-base);
   font-weight: 600;
 }
 
-.luxury-button.primary:hover {
-  box-shadow: var(--shadow-gold-strong);
+.ui-button.primary:hover,
+.scifi-button.primary:hover {
+  background: #ffffff;
+  border-color: #ffffff;
 }
 
-/* === 文字效果 === */
-.text-gold {
-  color: var(--gold-primary);
+/* === 文字工具类 === */
+.text-accent {
+  color: var(--accent);
 }
 
-.text-gradient-gold {
-  background: var(--gradient-gold);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-display {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.text-mono {
+.text-mono,
+.num {
   font-family: var(--font-mono);
-  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
 }
 
-/* === 数据展示 - 金融风格 === */
+/* === 数据展示 === */
 .data-value {
   font-family: var(--font-mono);
-  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
   font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-}
-
-.data-value.gold {
-  color: var(--gold-primary);
+  color: var(--fg);
+  letter-spacing: -0.01em;
 }
 
 .data-label {
   font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  font-size: 12px;
+  color: var(--fg-secondary);
   font-weight: 500;
 }
 
-/* === 涨跌样式 === */
+/* === 涨跌 === */
 .up {
   color: var(--up-color);
-  text-shadow: 0 0 10px var(--success-glow);
 }
 
 .down {
   color: var(--down-color);
-  text-shadow: 0 0 10px var(--danger-glow);
 }
 
-/* === 徽章样式 === */
-.badge-gold {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: rgba(212, 168, 83, 0.1);
-  border: 1px solid var(--border-gold);
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--gold-primary);
+.flat {
+  color: var(--flat-color);
 }
 
-/* === 分数徽章 - 圆形 === */
+/* === 状态点（配合文字使用） === */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* === 分数徽章：圆点 + 数字 === */
 .score-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  gap: 6px;
+  min-width: 48px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: 14px;
-  border: 2px solid;
-  position: relative;
+  font-size: 13px;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--line);
+  color: var(--fg);
 }
 
-.score-badge::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  padding: 2px;
-  background: conic-gradient(from 0deg, var(--gold-primary), var(--gold-light), var(--gold-primary));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.score-badge:hover::before {
-  opacity: 0.5;
-}
-
-.score-badge.high {
-  background: var(--up-bg);
-  border-color: var(--success-color);
+.score-badge.high .status-dot {
   color: var(--success-color);
 }
 
-.score-badge.medium {
-  background: rgba(245, 158, 11, 0.08);
-  border-color: var(--amber-primary);
-  color: var(--amber-primary);
+.score-badge.medium .status-dot {
+  color: var(--warning-color);
 }
 
-.score-badge.low {
-  background: var(--down-bg);
-  border-color: var(--danger-color);
+.score-badge.low .status-dot {
   color: var(--danger-color);
 }
 
-/* === 进度条 - 金色 === */
+/* === 进度条 === */
 .progress-bar {
   height: 4px;
-  background: var(--bg-tertiary);
+  background: var(--bg-surface-3);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: var(--gradient-gold);
+  background: var(--accent);
   border-radius: 2px;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px var(--gold-glow);
+  transition: width 180ms var(--ease);
 }
 
-/* === 动画 === */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes pulse-gold {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 168, 83, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(212, 168, 83, 0); }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-pulse-gold {
-  animation: pulse-gold 2s ease-in-out infinite;
-}
-
-/* === 加载动画 - 金色 === */
-.loading-gold {
+/* === 加载 === */
+.loading-spinner {
   display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--border-color);
-  border-top-color: var(--gold-primary);
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--fg-secondary);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* === 分隔线 - 金色渐变 === */
-.divider-gold {
+/* === 分隔线 === */
+.divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
-  opacity: 0.3;
-  margin: 24px 0;
+  background: var(--line);
+  margin: var(--space-5) 0;
 }
 
-/* === Ant Design 组件覆盖 === */
+/* === 回测报告指标 === */
+.metric-item {
+  padding: var(--space-3);
+  background: var(--bg-surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.metric-label {
+  font-size: 12px;
+  color: var(--fg-secondary);
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+/* ===================================================================
+ * Ant Design 覆盖（基础样式由 ConfigProvider token 提供，这里只补细节）
+ * =================================================================== */
+.ant-layout {
+  background: var(--bg-base);
+}
+
 .ant-layout-sider {
-  background: var(--bg-secondary) !important;
-  border-right: 1px solid var(--border-gold) !important;
+  background: var(--bg-surface-1) !important;
+  border-right: 1px solid var(--line) !important;
 }
 
 .ant-layout-header {
-  background: var(--bg-secondary) !important;
-  border-bottom: 1px solid var(--border-gold) !important;
+  background: var(--bg-base) !important;
+  border-bottom: 1px solid var(--line) !important;
+  line-height: normal;
 }
 
-.ant-menu-dark {
+.ant-menu-dark,
+.ant-menu-dark .ant-menu-sub {
   background: transparent !important;
 }
 
 .ant-menu-dark .ant-menu-item {
-  color: var(--text-secondary) !important;
-  margin: 4px 8px !important;
-  border-radius: var(--radius-md) !important;
-  transition: all 0.3s ease !important;
+  color: var(--fg-secondary) !important;
+  margin: 2px 8px !important;
+  width: calc(100% - 16px) !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 13px;
+  transition: var(--transition) !important;
+}
+
+.ant-menu-dark .ant-menu-item a {
+  color: inherit !important;
 }
 
 .ant-menu-dark .ant-menu-item:hover {
-  color: var(--gold-primary) !important;
-  background: rgba(212, 168, 83, 0.05) !important;
+  color: var(--fg) !important;
+  background: var(--bg-surface-2) !important;
 }
 
 .ant-menu-dark .ant-menu-item-selected {
-  background: rgba(212, 168, 83, 0.12) !important;
-  color: var(--gold-primary) !important;
-  border: 1px solid var(--border-gold) !important;
+  background: var(--bg-surface-3) !important;
+  color: var(--fg) !important;
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
-/* === 表格样式 === */
+.ant-menu-dark .ant-menu-item-selected .anticon {
+  color: var(--accent) !important;
+}
+
+/* 表格 */
 .ant-table {
   background: transparent !important;
+  font-size: 13px;
 }
 
 .ant-table-thead > tr > th {
-  background: var(--bg-tertiary) !important;
-  color: var(--gold-primary) !important;
-  border-bottom: 1px solid var(--border-gold) !important;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 11px;
+  background: var(--bg-surface-2) !important;
+  color: var(--fg-secondary) !important;
+  border-bottom: 1px solid var(--line) !important;
+  font-weight: 500 !important;
+  font-size: 12px;
+}
+
+.ant-table-thead > tr > th::before {
+  background-color: var(--line) !important;
 }
 
 .ant-table-tbody > tr > td {
-  border-bottom: 1px solid var(--border-color) !important;
-  color: var(--text-primary);
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
 }
 
-.ant-table-tbody > tr:hover > td {
-  background: rgba(212, 168, 83, 0.03) !important;
+.ant-table-tbody > tr:hover > td,
+.ant-table-tbody > tr.ant-table-row:hover > td {
+  background: var(--bg-surface-2) !important;
 }
 
-/* === 卡片覆盖 === */
+/* 卡片 */
 .ant-card {
-  background: var(--gradient-card) !important;
-  border: 1px solid var(--border-gold) !important;
+  background: var(--bg-surface-1) !important;
+  border: 1px solid var(--line) !important;
   border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
 }
 
 .ant-card-head {
   background: transparent !important;
-  border-bottom: 1px solid var(--border-gold) !important;
-  color: var(--text-primary) !important;
-  font-family: var(--font-display) !important;
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--fg) !important;
+  font-size: 15px !important;
   font-weight: 600 !important;
+  min-height: 48px !important;
 }
 
-/* === 输入框覆盖 === */
-.ant-input,
-.ant-input-number,
-.ant-select-selector {
-  background: var(--bg-tertiary) !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-primary) !important;
-  border-radius: var(--radius-md) !important;
+/* 统计数字 */
+.ant-statistic-title {
+  color: var(--fg-secondary) !important;
+  font-size: 12px !important;
 }
 
-.ant-input:hover,
-.ant-input-number:hover,
-.ant-select-selector:hover {
-  border-color: var(--gold-muted) !important;
+.ant-statistic-content,
+.ant-statistic-content-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
-.ant-input:focus,
-.ant-input-number:focus,
-.ant-select-selector:focus {
-  border-color: var(--gold-primary) !important;
-  box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.1) !important;
-}
-
-/* === 按钮覆盖 === */
-.ant-btn-default {
-  background: var(--bg-tertiary) !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-primary) !important;
-}
-
-.ant-btn-default:hover {
-  border-color: var(--gold-primary) !important;
-  color: var(--gold-primary) !important;
-}
-
-.ant-btn-primary {
-  background: var(--gradient-gold) !important;
-  border-color: var(--gold-primary) !important;
-  color: var(--bg-primary) !important;
-  font-weight: 600 !important;
-}
-
-.ant-btn-primary:hover {
-  box-shadow: var(--shadow-gold) !important;
-}
-
-/* === 全局文字颜色 === */
-*,
-*::before,
-*::after {
-  color: inherit;
-}
-
-body,
-.ant-layout,
-.ant-layout-content,
-.ant-card,
-.ant-card-body,
-.ant-form,
-.ant-form-item-label,
-.ant-form-item,
-.ant-pagination,
-.ant-pagination-item,
-.ant-pagination-options,
-.ant-modal,
-.ant-modal-content,
-.ant-modal-header,
-.ant-modal-body,
-.ant-message,
-.ant-dropdown,
-.ant-dropdown-menu,
-.ant-tooltip,
+/* 标签：小、方 */
 .ant-tag {
-  color: var(--text-primary) !important;
+  border-radius: 5px !important;
 }
 
+/* 危险按钮：平时低调，hover 才变红 */
+.ant-btn-dangerous.ant-btn-default:not(:disabled),
+.ant-btn-dangerous.ant-btn-text:not(:disabled),
+.ant-btn-dangerous.ant-btn-link:not(:disabled) {
+  color: var(--fg-secondary) !important;
+  border-color: var(--line-input);
+}
+
+.ant-btn-dangerous.ant-btn-default:not(:disabled):hover,
+.ant-btn-dangerous.ant-btn-text:not(:disabled):hover,
+.ant-btn-dangerous.ant-btn-link:not(:disabled):hover {
+  color: var(--danger-color) !important;
+  border-color: rgba(229, 72, 77, 0.5) !important;
+  background: var(--danger-soft) !important;
+}
+
+/* 切换按钮（指标开关）：选中态只提亮一级 + 主色细边，不用实心大色块 */
+.ant-btn.toggle-btn.is-active:not(:disabled) {
+  background: var(--bg-surface-3) !important;
+  border-color: var(--accent-line) !important;
+  color: var(--fg) !important;
+}
+
+/* 焦点可见 */
+.ant-btn:focus-visible,
+.ant-radio-button-wrapper:focus-within,
+.ant-switch:focus-visible,
+.ant-menu-item:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 1px !important;
+}
+
+/* 表单 label */
 .ant-form-item-label > label {
-  color: var(--text-secondary) !important;
+  color: var(--fg-secondary) !important;
+  font-size: 13px;
 }
 
-.ant-slider-rail {
-  background: var(--border-color) !important;
+/* 数字输入使用等宽 */
+.ant-input-number-input {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
-.ant-slider-track {
-  background: var(--gold-primary) !important;
+/* === 动效偏好 === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-.ant-slider-handle {
-  border-color: var(--gold-primary) !important;
-}
-
-/* === 响应式优化 === */
+/* === 响应式 === */
 @media (max-width: 768px) {
-  .luxury-card {
-    padding: 16px;
+  .surface-card {
+    padding: var(--space-4);
   }
-  
+
   .data-value {
-    font-size: 20px;
+    font-size: 18px;
   }
-  
-  .text-display {
-    font-size: 1.5rem;
+
+  .page-title {
+    font-size: 22px;
   }
 }

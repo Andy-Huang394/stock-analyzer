@@ -12,6 +12,7 @@ import {
   BarChart2, PieChart, Clock, AlertTriangle
 } from 'lucide-react';
 import { LuxuryCard, ChangeDisplay } from './Common';
+import { palette } from '../styles/palette';
 
 const { TabPane } = Tabs;
 
@@ -80,8 +81,9 @@ const BacktestReport = ({ result }) => {
   }, [monthly_returns]);
 
   // 获取颜色
-  const getReturnColor = (value) => value >= 0 ? '#52c41a' : '#ff4d4f';
-  const getMetricColor = (value, threshold) => value >= threshold ? '#52c41a' : value >= threshold/2 ? '#faad14' : '#ff4d4f';
+  // 收益：A 股红涨绿跌；指标优劣：语义色
+  const getReturnColor = (value) => value >= 0 ? palette.up : palette.down;
+  const getMetricColor = (value, threshold) => value >= threshold ? palette.success : value >= threshold/2 ? palette.warning : palette.danger;
 
   // 交易记录列定义
   const tradeColumns = [
@@ -148,8 +150,8 @@ const BacktestReport = ({ result }) => {
               suffix="%"
               valueStyle={{ 
                 color: getReturnColor(total_return),
-                fontSize: '28px',
-                fontWeight: 'bold'
+                fontSize: '24px',
+                fontWeight: 600
               }}
               prefix={total_return >= 0 ? <TrendingUp size={24}/> : <TrendingDown size={24}/>}
             />
@@ -175,7 +177,7 @@ const BacktestReport = ({ result }) => {
               value={max_drawdown}
               precision={2}
               suffix="%"
-              valueStyle={{ color: '#ff4d4f', fontSize: '24px' }}
+              valueStyle={{ color: palette.down, fontSize: '24px' }}
               prefix={<AlertTriangle size={20}/>}
             />
             <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 8 }}>
@@ -216,7 +218,7 @@ const BacktestReport = ({ result }) => {
               <Col span={12}>
                 <div className="metric-item">
                   <div className="metric-label">VaR (95%)</div>
-                  <div className="metric-value" style={{ color: '#ff4d4f' }}>
+                  <div className="metric-value" style={{ color: palette.down }}>
                     {var_95?.toFixed(2)}%
                   </div>
                 </div>
@@ -273,7 +275,7 @@ const BacktestReport = ({ result }) => {
                   <Progress 
                     percent={win_rate} 
                     size="small" 
-                    strokeColor={win_rate >= 50 ? '#52c41a' : '#ff4d4f'}
+                    strokeColor={win_rate >= 50 ? palette.success : palette.danger}
                     showInfo={false}
                   />
                 </div>
@@ -297,7 +299,7 @@ const BacktestReport = ({ result }) => {
               <Col span={12}>
                 <div className="metric-item">
                   <div className="metric-label">平均盈利</div>
-                  <div className="metric-value" style={{ color: '#52c41a' }}>
+                  <div className="metric-value" style={{ color: palette.up }}>
                     +{avg_profit?.toFixed(2)}%
                   </div>
                 </div>
@@ -305,7 +307,7 @@ const BacktestReport = ({ result }) => {
               <Col span={12}>
                 <div className="metric-item">
                   <div className="metric-label">平均亏损</div>
-                  <div className="metric-value" style={{ color: '#ff4d4f' }}>
+                  <div className="metric-value" style={{ color: palette.down }}>
                     {avg_loss?.toFixed(2)}%
                   </div>
                 </div>
@@ -313,7 +315,7 @@ const BacktestReport = ({ result }) => {
               <Col span={12}>
                 <div className="metric-item">
                   <div className="metric-label">最大连盈</div>
-                  <div className="metric-value" style={{ color: '#52c41a' }}>
+                  <div className="metric-value" style={{ color: palette.up }}>
                     {max_consecutive_wins} 次
                   </div>
                 </div>
@@ -321,7 +323,7 @@ const BacktestReport = ({ result }) => {
               <Col span={12}>
                 <div className="metric-item">
                   <div className="metric-label">最大连亏</div>
-                  <div className="metric-value" style={{ color: '#ff4d4f' }}>
+                  <div className="metric-value" style={{ color: palette.down }}>
                     {max_consecutive_losses} 次
                   </div>
                 </div>
@@ -339,27 +341,27 @@ const BacktestReport = ({ result }) => {
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: 8 }}>
                 <Clock size={14} style={{ marginRight: 4 }}/>平均持仓时间
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+              <div style={{ fontSize: '22px', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>
                 {avg_trade_duration?.toFixed(1)} 天
               </div>
             </div>
           </Col>
           <Col xs={24} md={8}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '12px', color: '#52c41a', marginBottom: 8 }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: 8 }}>
                 盈利持仓平均
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#52c41a' }}>
+              <div style={{ fontSize: '22px', fontWeight: 600, fontFamily: 'var(--font-mono)', color: palette.up }}>
                 {avg_win_duration?.toFixed(1)} 天
               </div>
             </div>
           </Col>
           <Col xs={24} md={8}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '12px', color: '#ff4d4f', marginBottom: 8 }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: 8 }}>
                 亏损持仓平均
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff4d4f' }}>
+              <div style={{ fontSize: '22px', fontWeight: 600, fontFamily: 'var(--font-mono)', color: palette.down }}>
                 {avg_loss_duration?.toFixed(1)} 天
               </div>
             </div>
@@ -373,22 +375,22 @@ const BacktestReport = ({ result }) => {
           <LuxuryCard>
             <ResponsiveContainer width="100%" height={400}>
               <ComposedChart data={equityData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis 
                   dataKey="date" 
-                  stroke="var(--text-muted)"
+                  stroke="var(--text-secondary)"
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis 
                   yAxisId="left"
-                  stroke="var(--text-muted)"
+                  stroke="var(--text-secondary)"
                   tick={{ fontSize: 12 }}
                   domain={['auto', 'auto']}
                 />
                 <YAxis 
                   yAxisId="right"
                   orientation="right"
-                  stroke="#52c41a"
+                  stroke={palette.fgSecondary}
                   tick={{ fontSize: 12 }}
                 />
                 
@@ -404,17 +406,11 @@ const BacktestReport = ({ result }) => {
                   yAxisId="left"
                   type="monotone"
                   dataKey="equity"
-                  stroke="#1890ff"
-                  fill="url(#colorEquity)"
-                  fillOpacity={0.3}
+                  stroke={palette.accent}
+                  fill={palette.accent}
+                  fillOpacity={0.08}
                   name="权益"
                 />
-                <defs>
-                  <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1890ff" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#1890ff" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
               </ComposedChart>
             </ResponsiveContainer>
           </LuxuryCard>
@@ -424,14 +420,14 @@ const BacktestReport = ({ result }) => {
           <LuxuryCard>
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart data={drawdownData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis 
                   dataKey="date" 
-                  stroke="var(--text-muted)"
+                  stroke="var(--text-secondary)"
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis 
-                  stroke="var(--text-muted)"
+                  stroke="var(--text-secondary)"
                   tick={{ fontSize: 12 }}
                   domain={[0, 'auto']}
                   tickFormatter={(v) => `${v.toFixed(1)}%`}
@@ -449,9 +445,9 @@ const BacktestReport = ({ result }) => {
                 <Area
                   type="monotone"
                   dataKey="drawdown"
-                  stroke="#ff4d4f"
-                  fill="#ff4d4f"
-                  fillOpacity={0.3}
+                  stroke={palette.down}
+                  fill={palette.down}
+                  fillOpacity={0.12}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -472,8 +468,7 @@ const BacktestReport = ({ result }) => {
                     '7月', '8月', '9月', '10月', '11月', '12月'].map(m => (
                     <div key={m} style={{ textAlign: 'center', fontSize: '12px' }}>{m}</div>
                   ))}
-                
-003c/div>
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {Array.from(new Set(monthlyData.map(d => d.year))).sort().map(year => (
                     <div key={year} style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
@@ -488,8 +483,8 @@ const BacktestReport = ({ result }) => {
                           const data = monthlyData.find(d => d.year === year && d.month === month);
                           const ret = data?.return || 0;
                           const color = ret > 0 
-                            ? `rgba(82, 196, 26, ${Math.min(Math.abs(ret) / 10, 1)})`
-                            : `rgba(255, 77, 79, ${Math.min(Math.abs(ret) / 10, 1)})`;
+                            ? `rgba(229, 72, 77, ${Math.min(0.12 + Math.abs(ret) / 20, 0.6)})`
+                            : `rgba(48, 164, 108, ${Math.min(0.12 + Math.abs(ret) / 20, 0.6)})`;
                           
                           return (
                             <Tooltip key={month} title={`${year}-${month}: ${ret?.toFixed(2)}%`}>
@@ -502,7 +497,8 @@ const BacktestReport = ({ result }) => {
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   fontSize: '10px',
-                                  color: Math.abs(ret) > 5 ? '#fff' : 'var(--text-primary)',
+                                  color: 'var(--text-primary)',
+                                  fontFamily: 'var(--font-mono)',
                                   cursor: 'pointer'
                                 }}
                               >

@@ -1,130 +1,114 @@
 import React from 'react';
-import { ArrowUpOutlined, ArrowDownOutlined, MinusOutlined, TrophyOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, ArrowDownOutlined, MinusOutlined } from '@ant-design/icons';
 import '../styles/theme.css';
 
+const monoStyle = {
+  fontFamily: 'var(--font-mono)',
+  fontVariantNumeric: 'tabular-nums'
+};
+
 /**
- * 涨跌显示组件 - 黑金风格
+ * 涨跌显示组件（A 股：红涨绿跌；同时用箭头和正负号表达，不只靠颜色）
  */
 const ChangeDisplay = ({ value, suffix = '%', showIcon = true, size = 'normal' }) => {
   const numValue = parseFloat(value);
   const fontSize = size === 'large' ? '18px' : size === 'small' ? '12px' : '14px';
-  
+  const base = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    fontSize,
+    fontWeight: '500',
+    ...monoStyle
+  };
+
   if (numValue > 0) {
     return (
-      <span 
-        className="up" 
-        style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '4px',
-          fontSize,
-          fontFamily: 'var(--font-mono)',
-          fontWeight: '600'
-        }}
-      >
-        {showIcon && <ArrowUpOutlined />}
+      <span className="up" style={base}>
+        {showIcon && <ArrowUpOutlined aria-hidden="true" />}
         +{numValue.toFixed(2)}{suffix}
       </span>
     );
   } else if (numValue < 0) {
     return (
-      <span 
-        className="down" 
-        style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '4px',
-          fontSize,
-          fontFamily: 'var(--font-mono)',
-          fontWeight: '600'
-        }}
-      >
-        {showIcon && <ArrowDownOutlined />}
+      <span className="down" style={base}>
+        {showIcon && <ArrowDownOutlined aria-hidden="true" />}
         {numValue.toFixed(2)}{suffix}
       </span>
     );
   }
-  
+
   return (
-    <span 
-      style={{ 
-        color: 'var(--text-muted)',
-        fontSize,
-        fontFamily: 'var(--font-mono)'
-      }}
-    >
-      {showIcon && <MinusOutlined />}
+    <span className="flat" style={base}>
+      {showIcon && <MinusOutlined aria-hidden="true" />}
       0.00{suffix}
     </span>
   );
 };
 
 /**
- * 评分徽章 - 奢华黑金风格
+ * 评分徽章：状态圆点 + 等宽数字
  */
 const ScoreBadge = ({ score, size = 'normal' }) => {
   const sizeMap = {
-    small: { width: '36px', height: '36px', fontSize: '12px' },
-    normal: { width: '48px', height: '48px', fontSize: '14px' },
-    large: { width: '64px', height: '64px', fontSize: '18px' }
+    small: { height: '22px', fontSize: '12px', minWidth: '40px' },
+    normal: { height: '26px', fontSize: '13px', minWidth: '48px' },
+    large: { height: '32px', fontSize: '16px', minWidth: '60px' }
   };
   const s = sizeMap[size] || sizeMap.normal;
-  
-  let className = 'score-badge low';
-  if (score >= 70) className = 'score-badge high';
-  else if (score >= 50) className = 'score-badge medium';
-  
+
+  let level = 'low';
+  let levelText = '低';
+  if (score >= 70) { level = 'high'; levelText = '高'; }
+  else if (score >= 50) { level = 'medium'; levelText = '中'; }
+
   return (
-    <div 
-      className={className}
-      style={{
-        width: s.width,
-        height: s.height,
-        fontSize: s.fontSize
-      }}
+    <div
+      className={`score-badge ${level}`}
+      style={{ height: s.height, fontSize: s.fontSize, minWidth: s.minWidth }}
+      title={`评分 ${Math.round(score)}（${levelText}）`}
+      aria-label={`评分 ${Math.round(score)}，${levelText}`}
     >
+      <span className="status-dot" aria-hidden="true" />
       {Math.round(score)}
     </div>
   );
 };
 
 /**
- * 概率条 - 金色渐变
+ * 概率条
  */
 const ProbabilityBar = ({ probability, label }) => {
   const percentage = Math.round(probability * 100);
   let color = 'var(--danger-color)';
   if (percentage >= 70) color = 'var(--success-color)';
-  else if (percentage >= 50) color = 'var(--gold-primary)';
-  else if (percentage >= 30) color = 'var(--amber-primary)';
-  
+  else if (percentage >= 50) color = 'var(--accent)';
+  else if (percentage >= 30) color = 'var(--warning-color)';
+
   return (
     <div style={{ marginBottom: '12px' }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
         marginBottom: '6px',
         fontSize: '12px'
       }}>
-        <span style={{ 
-          color: 'var(--text-secondary)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px'
-        }}>{label}</span>
-        <span style={{ 
-          color: color, 
-          fontWeight: '600',
-          fontFamily: 'var(--font-mono)'
-        }}>{percentage}%</span>
+        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+        <span style={{ color: 'var(--text-primary)', fontWeight: '500', ...monoStyle }}>
+          {percentage}%
+        </span>
       </div>
-      <div className="progress-bar">
-        <div 
+      <div
+        className="progress-bar"
+        role="progressbar"
+        aria-valuenow={percentage}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={label}
+      >
+        <div
           className="progress-bar-fill"
-          style={{ 
-            width: `${percentage}%`,
-            background: percentage >= 70 ? 'var(--gradient-gold)' : color,
-            boxShadow: percentage >= 70 ? '0 0 10px var(--gold-glow)' : `0 0 10px ${color}40`
-          }} 
+          style={{ width: `${percentage}%`, background: color }}
         />
       </div>
     </div>
@@ -132,53 +116,18 @@ const ProbabilityBar = ({ probability, label }) => {
 };
 
 /**
- * 奢华卡片 - 黑金风格
+ * 卡片：1px 极弱边框，几乎无阴影
  */
 const LuxuryCard = ({ children, title, subtitle, className = '', style = {}, headerAction = null }) => {
   return (
-    <div className={`luxury-card ${className}`} style={style}>
+    <div className={`surface-card ${className}`} style={style}>
       {title && (
-        <div style={{ 
-          marginBottom: '20px',
-          paddingBottom: '16px',
-          borderBottom: '1px solid var(--border-gold)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div>
-            <h3 style={{ 
-              margin: 0,
-              fontSize: '16px',
-              fontWeight: '600',
-              color: 'var(--text-primary)',
-              fontFamily: 'var(--font-display)',
-              letterSpacing: '0.5px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}>
-              <span 
-                className="text-gradient-gold"
-                style={{ fontSize: '18px' }}
-              >
-                ◆
-              </span>
-              {title}
-            </h3>
-            {subtitle && (
-              <p style={{
-                margin: '4px 0 0',
-                fontSize: '12px',
-                color: 'var(--text-muted)'
-              }}>
-                {subtitle}
-              </p>
-            )}
+        <div className="surface-card__header">
+          <div style={{ minWidth: 0 }}>
+            <h3 className="surface-card__title">{title}</h3>
+            {subtitle && <p className="surface-card__subtitle">{subtitle}</p>}
           </div>
-          {headerAction && (
-            <div>{headerAction}</div>
-          )}
+          {headerAction && <div>{headerAction}</div>}
         </div>
       )}
       {children}
@@ -187,33 +136,33 @@ const LuxuryCard = ({ children, title, subtitle, className = '', style = {}, hea
 };
 
 /**
- * 数据展示项 - 金融风格
+ * 数据展示项
  */
 const DataItem = ({ label, value, unit = '', change, trend, size = 'normal' }) => {
   const isLarge = size === 'large';
-  
+
   return (
     <div style={{ textAlign: 'center' }}>
       <div className="data-label">{label}</div>
-      
-      <div 
-        className="data-value" 
-        style={{ 
+
+      <div
+        className="data-value"
+        style={{
           marginTop: '8px',
-          fontSize: isLarge ? '32px' : '24px',
+          fontSize: isLarge ? '28px' : '22px',
           color: trend === 'up' ? 'var(--up-color)' : trend === 'down' ? 'var(--down-color)' : 'var(--text-primary)'
         }}
       >
         {value}
-        {unit && <span style={{ 
-          fontSize: isLarge ? '16px' : '14px', 
+        {unit && <span style={{
+          fontSize: isLarge ? '14px' : '13px',
           marginLeft: '4px',
           color: 'var(--text-secondary)'
         }}>{unit}</span>}
       </div>
-      
+
       {change !== undefined && (
-        <div style={{ marginTop: '6px' }}>
+        <div style={{ marginTop: '4px' }}>
           <ChangeDisplay value={change} size={isLarge ? 'normal' : 'small'} />
         </div>
       )}
@@ -222,56 +171,57 @@ const DataItem = ({ label, value, unit = '', change, trend, size = 'normal' }) =
 };
 
 /**
- * 指标卡片 - 用于展示关键指标
+ * 指标卡片
  */
 const MetricCard = ({ title, value, change, prefix = '', suffix = '', trend, icon = null }) => {
   return (
-    <div className="luxury-card">
+    <div className="surface-card" style={{ padding: '16px' }}>
       <div style={{
         display: 'flex',
         alignItems: 'flex-start',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        gap: '12px'
       }}>
-        <div>
+        <div style={{ minWidth: 0 }}>
           <div style={{
-            fontSize: '11px',
-            color: 'var(--text-muted)',
-            textTransform: 'uppercase',
-            letterSpacing: '1.5px',
+            fontSize: '12px',
+            color: 'var(--text-secondary)',
             marginBottom: '8px'
           }}>
             {title}
           </div>
-          
+
           <div style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '28px',
+            ...monoStyle,
+            fontSize: '24px',
             fontWeight: '600',
+            letterSpacing: '-0.01em',
             color: trend === 'up' ? 'var(--up-color)' : trend === 'down' ? 'var(--down-color)' : 'var(--text-primary)'
           }}>
             {prefix}<span className={trend === 'up' ? 'up' : trend === 'down' ? 'down' : ''}>{value}</span>
-            {suffix && <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{suffix}</span>}
+            {suffix && <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginLeft: '2px' }}>{suffix}</span>}
           </div>
-          
+
           {change !== undefined && (
-            <div style={{ marginTop: '6px' }}>
-              <ChangeDisplay value={change} />
+            <div style={{ marginTop: '4px' }}>
+              <ChangeDisplay value={change} size="small" />
             </div>
           )}
         </div>
-        
+
         {icon && (
           <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '10px',
-            background: 'rgba(212, 168, 83, 0.1)',
-            border: '1px solid var(--border-gold)',
+            width: '32px',
+            height: '32px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-tertiary)',
+            border: '1px solid var(--border-color)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--gold-primary)',
-            fontSize: '18px'
+            color: 'var(--text-secondary)',
+            fontSize: '15px',
+            flexShrink: 0
           }}>
             {icon}
           </div>
@@ -282,114 +232,91 @@ const MetricCard = ({ title, value, change, prefix = '', suffix = '', trend, ico
 };
 
 /**
- * 加载状态 - 金色风格
+ * 加载状态
  */
 const LoadingState = ({ text = '数据加载中...' }) => {
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      alignItems: 'center', 
-      justifyContent: 'center',
-      padding: '48px',
-      color: 'var(--text-secondary)'
-    }}
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '10px',
+        padding: '48px 24px',
+        color: 'var(--text-secondary)',
+        fontSize: '13px'
+      }}
     >
-      <div className="loading-gold" style={{ width: '36px', height: '36px' }} />
-      
-      <span style={{ 
-        marginTop: '20px',
-        fontSize: '13px',
-        color: 'var(--text-muted)',
-        letterSpacing: '0.5px'
-      }}>{text}</span>
+      <div className="loading-spinner" aria-hidden="true" />
+      <span>{text}</span>
     </div>
   );
 };
 
 /**
- * 空状态 - 黑金风格
+ * 空状态
  */
 const EmptyState = ({ title = '暂无数据', description = '' }) => {
   return (
     <div style={{
       textAlign: 'center',
-      padding: '48px 24px',
-      color: 'var(--text-muted)'
+      padding: '40px 24px',
+      color: 'var(--text-secondary)'
     }}
     >
       <div style={{
-        fontSize: '48px',
-        marginBottom: '16px',
-        opacity: 0.3
-      }}>
-        ◆
-      </div>
-      
-      <div style={{
-        fontSize: '16px',
-        color: 'var(--text-secondary)',
-        marginBottom: '8px',
-        fontFamily: 'var(--font-display)'
+        fontSize: '14px',
+        fontWeight: 500,
+        color: 'var(--text-primary)',
+        marginBottom: '4px'
       }}>
         {title}
       </div>
-      
+
       {description && (
-        <div style={{ fontSize: '13px' }}>{description}</div>
+        <div style={{ fontSize: '12px' }}>{description}</div>
       )}
     </div>
   );
 };
 
 /**
- * 标签 - 黑金风格
+ * 标签：短标签 + 可选状态点
  */
 const Tag = ({ children, variant = 'default', size = 'normal' }) => {
-  const variants = {
-    default: {
-      background: 'var(--bg-tertiary)',
-      color: 'var(--text-secondary)',
-      border: '1px solid var(--border-color)'
-    },
-    gold: {
-      background: 'rgba(212, 168, 83, 0.1)',
-      color: 'var(--gold-primary)',
-      border: '1px solid var(--border-gold)'
-    },
-    success: {
-      background: 'rgba(16, 185, 129, 0.1)',
-      color: 'var(--success-color)',
-      border: '1px solid rgba(16, 185, 129, 0.3)'
-    },
-    danger: {
-      background: 'rgba(239, 68, 68, 0.1)',
-      color: 'var(--danger-color)',
-      border: '1px solid rgba(239, 68, 68, 0.3)'
-    }
+  const dotColors = {
+    accent: 'var(--accent)',
+    success: 'var(--success-color)',
+    danger: 'var(--danger-color)',
+    warning: 'var(--warning-color)'
   };
-  
+
   const sizes = {
-    small: { padding: '2px 8px', fontSize: '11px' },
-    normal: { padding: '4px 10px', fontSize: '12px' },
-    large: { padding: '6px 14px', fontSize: '13px' }
+    small: { padding: '1px 6px', fontSize: '11px' },
+    normal: { padding: '2px 8px', fontSize: '12px' },
+    large: { padding: '4px 10px', fontSize: '13px' }
   };
-  
-  const v = variants[variant] || variants.default;
+
   const s = sizes[size] || sizes.normal;
-  
+  const dot = dotColors[variant];
+
   return (
     <span style={{
       display: 'inline-flex',
       alignItems: 'center',
-      gap: '4px',
+      gap: '6px',
       padding: s.padding,
       fontSize: s.fontSize,
       fontWeight: '500',
-      borderRadius: '20px',
-      ...v
+      borderRadius: '6px',
+      background: 'var(--bg-tertiary)',
+      color: 'var(--text-secondary)',
+      border: '1px solid var(--border-color)'
     }}
     >
+      {dot && <span className="status-dot" style={{ color: dot }} aria-hidden="true" />}
       {children}
     </span>
   );
@@ -397,12 +324,14 @@ const Tag = ({ children, variant = 'default', size = 'normal' }) => {
 
 // 向后兼容导出
 const SciFiCard = LuxuryCard;
+const SurfaceCard = LuxuryCard;
 
-export { 
-  ChangeDisplay, 
-  ScoreBadge, 
-  ProbabilityBar, 
+export {
+  ChangeDisplay,
+  ScoreBadge,
+  ProbabilityBar,
   LuxuryCard,
+  SurfaceCard,
   SciFiCard,
   MetricCard,
   DataItem,

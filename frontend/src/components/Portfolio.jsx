@@ -15,6 +15,7 @@ import {
 import { LuxuryCard, LoadingState, ChangeDisplay } from './Common';
 import axios from 'axios';
 import { Pie, Line, Gauge } from '@ant-design/plots';
+import { palette } from '../styles/palette';
 
 const { Option } = Select;
 
@@ -363,7 +364,7 @@ const PortfolioPieChart = ({ data }) => {
       content: '{name}\n{percentage}',
       style: {
         fontSize: 11,
-        fill: '#fff'
+        fill: palette.fg
       }
     },
     legend: {
@@ -387,19 +388,19 @@ const RiskReturnGauge = ({ analysis }) => {
       title: '风险等级',
       value: analysis.riskLevel,
       max: 10,
-      color: analysis.riskLevel > 7 ? '#ff4d4f' : analysis.riskLevel > 4 ? '#faad14' : '#52c41a'
+      color: analysis.riskLevel > 7 ? palette.danger : analysis.riskLevel > 4 ? palette.warning : palette.success
     },
     {
       title: '收益评分',
       value: analysis.returnScore,
       max: 100,
-      color: analysis.returnScore > 70 ? '#52c41a' : analysis.returnScore > 50 ? '#faad14' : '#ff4d4f'
+      color: analysis.returnScore > 70 ? palette.success : analysis.returnScore > 50 ? palette.warning : palette.danger
     },
     {
       title: '分散度',
       value: analysis.diversification,
       max: 100,
-      color: analysis.diversification > 60 ? '#52c41a' : '#faad14'
+      color: analysis.diversification > 60 ? palette.success : palette.warning
     }
   ];
 
@@ -412,7 +413,7 @@ const RiskReturnGauge = ({ analysis }) => {
               percent={cfg.value / cfg.max}
               range={{
                 ticks: [0, 0.33, 0.67, 1],
-                color: ['#52c41a', '#faad14', '#ff4d4f']
+                color: [palette.success, palette.warning, palette.danger]
               }}
               indicator={{
                 pointer: { style: { stroke: cfg.color } },
@@ -447,7 +448,7 @@ const PortfolioReturnChart = ({ data }) => {
     yField: 'value',
     seriesField: 'type',
     smooth: true,
-    color: ['#52c41a', '#1890ff'],
+    color: [palette.series[0], palette.series[2]],
     yAxis: {
       label: {
         formatter: (v) => `${v}%`
@@ -477,19 +478,19 @@ const PortfolioReturnChart = ({ data }) => {
 const PortfolioSuggestions = ({ suggestions }) => {
   const getIcon = (type) => {
     switch (type) {
-      case 'success': return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
-      case 'warning': return <WarningOutlined style={{ color: '#faad14' }} />;
-      case 'danger': return <WarningOutlined style={{ color: '#ff4d4f' }} />;
-      default: return <CheckCircleOutlined style={{ color: '#1890ff' }} />;
+      case 'success': return <CheckCircleOutlined style={{ color: palette.success }} />;
+      case 'warning': return <WarningOutlined style={{ color: palette.warning }} />;
+      case 'danger': return <WarningOutlined style={{ color: palette.danger }} />;
+      default: return <CheckCircleOutlined style={{ color: palette.accent }} />;
     }
   };
 
   const getBgColor = (type) => {
     switch (type) {
-      case 'success': return 'rgba(82, 196, 26, 0.1)';
-      case 'warning': return 'rgba(250, 173, 20, 0.1)';
-      case 'danger': return 'rgba(255, 77, 79, 0.1)';
-      default: return 'rgba(24, 144, 255, 0.1)';
+      case 'success': return 'var(--bg-tertiary)';
+      case 'warning': return 'var(--bg-tertiary)';
+      case 'danger': return 'var(--bg-tertiary)';
+      default: return 'var(--bg-tertiary)';
     }
   };
 

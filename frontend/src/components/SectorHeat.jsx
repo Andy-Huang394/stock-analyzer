@@ -180,14 +180,14 @@ const SectorStatCard = ({ title, value, total, icon, color, suffix = '' }) => {
  */
 const SectorHeatMap = ({ sectors, onSelect, selected }) => {
   const getHeatColor = (change) => {
-    if (change >= 5) return '#d32f2f';
-    if (change >= 3) return '#f44336';
-    if (change >= 1) return '#ff5722';
-    if (change >= 0) return '#ff9800';
-    if (change >= -1) return '#4caf50';
-    if (change >= -3) return '#388e3c';
-    if (change >= -5) return '#2e7d32';
-    return '#1b5e20';
+    if (change >= 5) return 'rgba(229, 72, 77, 0.55)';
+    if (change >= 3) return 'rgba(229, 72, 77, 0.40)';
+    if (change >= 1) return 'rgba(229, 72, 77, 0.26)';
+    if (change >= 0) return 'rgba(229, 72, 77, 0.14)';
+    if (change >= -1) return 'rgba(48, 164, 108, 0.14)';
+    if (change >= -3) return 'rgba(48, 164, 108, 0.26)';
+    if (change >= -5) return 'rgba(48, 164, 108, 0.40)';
+    return 'rgba(48, 164, 108, 0.55)';
   };
 
   const getHeatIntensity = (change) => {
@@ -219,7 +219,8 @@ const SectorHeatMap = ({ sectors, onSelect, selected }) => {
                 cursor: 'pointer',
                 background: heatColor,
                 opacity: intensity,
-                border: isSelected ? '3px solid #fff' : '1px solid transparent',
+                border: isSelected ? '1px solid var(--accent)' : '1px solid var(--border-color)',
+                boxShadow: isSelected ? 'inset 0 0 0 1px var(--accent)' : 'none',
                 transform: isSelected ? 'scale(1.05)' : 'scale(1)',
                 transition: 'all 0.2s',
                 minWidth: '100px',
@@ -228,14 +229,14 @@ const SectorHeatMap = ({ sectors, onSelect, selected }) => {
             >
               <div style={{ 
                 fontWeight: 'bold', 
-                color: '#fff',
+                color: 'var(--text-primary)',
                 fontSize: '14px'
               }}>
                 {sector.name}
               </div>
               <div style={{ 
                 fontSize: '12px', 
-                color: '#fff',
+                color: 'var(--text-primary)',
                 marginTop: '4px'
               }}>
                 {sector.change >= 0 ? '+' : ''}{sector.change.toFixed(2)}%
@@ -260,7 +261,7 @@ const SectorRankingTable = ({ sectors, onSelect }) => {
       render: (rank) => (
         <span style={{ 
           fontWeight: 'bold',
-          color: rank <= 3 ? '#ffd700' : 'var(--text-secondary)'
+          color: rank <= 3 ? 'var(--text-primary)' : 'var(--text-secondary)'
         }}>
           {rank}
         </span>
@@ -366,7 +367,7 @@ const SectorFundFlowTable = ({ sectors }) => {
         <Badge 
           count={`${ratio.toFixed(1)}%`}
           style={{ 
-            backgroundColor: ratio > 50 ? '#52c41a' : '#ff4d4f'
+            backgroundColor: ratio > 50 ? 'var(--up-color)' : 'var(--down-color)'
           }}
         />
       )
@@ -401,7 +402,7 @@ const FundFlowTrend = ({ trend }) => {
           style={{
             width: '8px',
             height: `${Math.abs(value) * 2 + 4}px`,
-            backgroundColor: value >= 0 ? '#52c41a' : '#ff4d4f',
+            backgroundColor: value >= 0 ? 'var(--up-color)' : 'var(--down-color)',
             borderRadius: '1px'
           }}
         />
@@ -471,7 +472,7 @@ const SectorStocksTable = ({ stocks }) => {
       width: 50,
       render: (rank) => (
         <span style={{ 
-          color: rank <= 3 ? '#ffd700' : 'var(--text-secondary)',
+          color: rank <= 3 ? 'var(--text-primary)' : 'var(--text-secondary)',
           fontWeight: 'bold'
         }}>{rank}</span>
       )
@@ -571,7 +572,7 @@ const SectorFundDetail = ({ sector }) => {
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '11px',
-            color: '#fff'
+            color: 'var(--text-primary)'
           }}>
             涨 {sector.upCount}
           </div>
@@ -587,7 +588,7 @@ const SectorFundDetail = ({ sector }) => {
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '11px',
-            color: '#fff'
+            color: 'var(--text-primary)'
           }}>
             跌 {sector.downCount}
           </div>

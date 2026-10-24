@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AutoComplete, Input, Spin, Empty } from 'antd';
+import { AutoComplete, Input, Empty } from 'antd';
 import { SearchOutlined, RiseOutlined, FallOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 
 /**
- * 股票搜索自动补全组件 - 奢华黑金风格
+ * 股票搜索自动补全组件
  * @param {function} onSelect - 选中股票回调 (symbol, name) => {}
  * @param {string} placeholder - 占位文本
  * @param {string} value - 当前值
@@ -59,11 +59,10 @@ const StockSearch = ({
             padding: '4px 0'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ 
-                fontFamily: 'var(--font-mono)',
-                fontWeight: '600', 
-                fontSize: '14px',
-                color: 'var(--gold-primary)',
+              <span className="num" style={{ 
+                fontWeight: '500', 
+                fontSize: '13px',
+                color: 'var(--text-primary)',
                 minWidth: '60px'
               }}>
                 {stock.symbol}
@@ -80,7 +79,8 @@ const StockSearch = ({
               alignItems: 'center',
               gap: '4px',
               fontFamily: 'var(--font-mono)',
-              fontSize: '13px',
+              fontVariantNumeric: 'tabular-nums',
+              fontSize: '12px',
               fontWeight: '500',
               color: stock.change_percent >= 0 ? 'var(--up-color)' : 'var(--down-color)'
             }}>
@@ -138,7 +138,7 @@ const StockSearch = ({
     if (onChange) onChange('');
   };
 
-  const inputSize = size === 'small' ? { height: '36px' } : size === 'large' ? { height: '48px' } : { height: '40px' };
+  const inputSize = size === 'small' ? { height: '32px' } : size === 'large' ? { height: '38px' } : { height: '34px' };
 
   return (
     <AutoComplete
@@ -152,15 +152,15 @@ const StockSearch = ({
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
       dropdownStyle={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid var(--border-gold)',
+        background: 'var(--bg-tertiary)',
+        border: '1px solid var(--border-color)',
         borderRadius: 'var(--radius-md)',
-        boxShadow: 'var(--shadow-gold), var(--shadow-lg)'
+        boxShadow: 'var(--shadow-lg)'
       }}
       notFoundContent={
         loading ? (
-          <div style={{ padding: '24px', textAlign: 'center' }}>
-            <div className="loading-gold" />
+          <div style={{ padding: '24px', textAlign: 'center' }} role="status" aria-label="搜索中">
+            <div className="loading-spinner" />
           </div>
         ) : searchValue.length > 0 ? (
           <Empty 
@@ -173,22 +173,25 @@ const StockSearch = ({
       <Input
         size={size}
         placeholder={placeholder}
+        aria-label={placeholder}
         prefix={
           <SearchOutlined 
+            aria-hidden="true"
             style={{ 
-              color: isFocused ? 'var(--gold-primary)' : 'var(--text-muted)',
-              fontSize: '16px',
-              transition: 'color 0.3s ease'
+              color: isFocused ? 'var(--text-primary)' : 'var(--text-secondary)',
+              fontSize: '14px',
+              transition: 'color 150ms ease'
             }} 
           />
         }
         style={{
           background: 'var(--bg-tertiary)',
-          borderColor: isFocused ? 'var(--gold-primary)' : 'var(--border-color)',
+          borderColor: isFocused ? 'var(--accent-line)' : 'var(--line-input)',
           color: 'var(--text-primary)',
           borderRadius: 'var(--radius-md)',
-          transition: 'all 0.3s ease',
-          boxShadow: isFocused ? '0 0 0 2px rgba(212, 168, 83, 0.1)' : 'none',
+          fontSize: '13px',
+          transition: 'border-color 150ms ease, box-shadow 150ms ease',
+          boxShadow: isFocused ? '0 0 0 2px var(--accent-soft)' : 'none',
           ...inputSize
         }}
       />

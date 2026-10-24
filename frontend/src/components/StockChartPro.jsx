@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import axios from 'axios';
 import { LuxuryCard, LoadingState, ChangeDisplay } from './Common';
+import { palette, fontSans } from '../styles/palette';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -50,28 +51,30 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
     const chartInstance = createChart(chartContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#d1d4dc',
+        textColor: palette.chartText,
+        fontFamily: fontSans,
+        fontSize: 11,
       },
       grid: {
-        vertLines: { color: 'rgba(197, 203, 206, 0.1)' },
-        horzLines: { color: 'rgba(197, 203, 206, 0.1)' },
+        vertLines: { color: palette.chartGrid },
+        horzLines: { color: palette.chartGrid },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: '#758696',
-          labelBackgroundColor: '#758696',
+          color: 'rgba(255, 255, 255, 0.25)',
+          labelBackgroundColor: palette.surface3,
         },
         horzLine: {
-          color: '#758696',
-          labelBackgroundColor: '#758696',
+          color: 'rgba(255, 255, 255, 0.25)',
+          labelBackgroundColor: palette.surface3,
         },
       },
       rightPriceScale: {
-        borderColor: 'rgba(197, 203, 206, 0.2)',
+        borderColor: palette.chartAxis,
       },
       timeScale: {
-        borderColor: 'rgba(197, 203, 206, 0.2)',
+        borderColor: palette.chartAxis,
         timeVisible: true,
         secondsVisible: false,
       },
@@ -84,16 +87,16 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
 
     // 创建K线系列
     candlestickSeries.current = chartInstance.addCandlestickSeries({
-      upColor: '#ef5350',
-      downColor: '#26a69a',
+      upColor: palette.up,
+      downColor: palette.down,
       borderVisible: false,
-      wickUpColor: '#ef5350',
-      wickDownColor: '#26a69a',
+      wickUpColor: palette.up,
+      wickDownColor: palette.down,
     });
 
     // 创建成交量系列
     volumeSeries.current = chartInstance.addHistogramSeries({
-      color: '#26a69a',
+      color: palette.down,
       priceFormat: { type: 'volume' },
       priceScaleId: '',
       scaleMargins: {
@@ -104,10 +107,10 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
 
     // 创建MA系列
     const maColors = {
-      ma5: '#2196f3',
-      ma10: '#ff9800',
-      ma20: '#9c27b0',
-      ma60: '#f44336'
+      ma5: palette.ma5,
+      ma10: palette.ma10,
+      ma20: palette.ma20,
+      ma60: palette.ma60
     };
 
     Object.keys(maColors).forEach(ma => {
@@ -185,7 +188,7 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
       const volumeData = data.map(k => ({
         time: k.date,
         value: k.volume,
-        color: k.close >= k.open ? '#ef5350' : '#26a69a',
+        color: k.close >= k.open ? palette.up : palette.down,
       }));
 
       // 设置数据
@@ -276,24 +279,26 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
         position: 'absolute',
         top: 10,
         left: 10,
-        background: 'var(--bg-secondary)',
-        padding: '12px',
+        background: 'var(--bg-tertiary)',
+        padding: '8px 12px',
         borderRadius: '8px',
         border: '1px solid var(--border-color)',
         zIndex: 10,
         fontSize: '12px',
+        fontFamily: 'var(--font-mono)',
+        fontVariantNumeric: 'tabular-nums',
         minWidth: '150px'
       }}>
-        <div style={{ marginBottom: '4px', fontWeight: 'bold' }}>
+        <div className="num" style={{ marginBottom: '4px', fontWeight: 600 }}>
           {hoverData.time}
         </div>
         <Row gutter={[8, 4]}>
           <Col span={12}>开盘:</Col>
           <Col span={12} style={{ textAlign: 'right' }}>{hoverData.open?.toFixed(2)}</Col>
           <Col span={12}>最高:</Col>
-          <Col span={12} style={{ textAlign: 'right', color: '#ef5350' }}>{hoverData.high?.toFixed(2)}</Col>
+          <Col span={12} style={{ textAlign: 'right', color: palette.up }}>{hoverData.high?.toFixed(2)}</Col>
           <Col span={12}>最低:</Col>
-          <Col span={12} style={{ textAlign: 'right', color: '#26a69a' }}>{hoverData.low?.toFixed(2)}</Col>
+          <Col span={12} style={{ textAlign: 'right', color: palette.down }}>{hoverData.low?.toFixed(2)}</Col>
           <Col span={12}>收盘:</Col>
           <Col span={12} style={{ textAlign: 'right', fontWeight: 'bold' }}>{hoverData.close?.toFixed(2)}</Col>
         </Row>
@@ -312,10 +317,10 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
               {stockInfo && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                   <div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                    <div style={{ fontSize: '16px', fontWeight: 600 }}>
                       {stockInfo.name} ({symbol})
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: stockInfo.change_percent >= 0 ? '#ef5350' : '#26a69a' }}>
+                    <div className="num" style={{ fontSize: '22px', fontWeight: 600, color: stockInfo.change_percent >= 0 ? palette.up : palette.down }}>
                       ¥{stockInfo.price?.toFixed(2)}
                       <span style={{ fontSize: '14px', marginLeft: 8 }}>
                         <ChangeDisplay value={stockInfo.change_percent} />
@@ -364,42 +369,46 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
         <Row gutter={[16, 8]}>
           <Col span={24}>
             <Space wrap>
-              <span style={{ color: 'var(--text-muted)' }}>指标:</span>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>指标</span>
               
-              <Badge dot color="#2196f3">
+              <Badge dot color={palette.ma5}>
                 <Button
                   size="small"
-                  type={indicators.ma5 ? 'primary' : 'default'}
+                  className={indicators.ma5 ? 'toggle-btn is-active' : 'toggle-btn'}
+                  aria-pressed={indicators.ma5}
                   onClick={() => toggleIndicator('ma5')}
                 >
                   MA5
                 </Button>
               </Badge>
 
-              <Badge dot color="#ff9800">
+              <Badge dot color={palette.ma10}>
                 <Button
                   size="small"
-                  type={indicators.ma10 ? 'primary' : 'default'}
+                  className={indicators.ma10 ? 'toggle-btn is-active' : 'toggle-btn'}
+                  aria-pressed={indicators.ma10}
                   onClick={() => toggleIndicator('ma10')}
                 >
                   MA10
                 </Button>
               </Badge>
 
-              <Badge dot color="#9c27b0">
+              <Badge dot color={palette.ma20}>
                 <Button
                   size="small"
-                  type={indicators.ma20 ? 'primary' : 'default'}
+                  className={indicators.ma20 ? 'toggle-btn is-active' : 'toggle-btn'}
+                  aria-pressed={indicators.ma20}
                   onClick={() => toggleIndicator('ma20')}
                 >
                   MA20
                 </Button>
               </Badge>
 
-              <Badge dot color="#f44336">
+              <Badge dot color={palette.ma60}>
                 <Button
                   size="small"
-                  type={indicators.ma60 ? 'primary' : 'default'}
+                  className={indicators.ma60 ? 'toggle-btn is-active' : 'toggle-btn'}
+                  aria-pressed={indicators.ma60}
                   onClick={() => toggleIndicator('ma60')}
                 >
                   MA60
@@ -411,7 +420,8 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
               <Button
                 size="small"
                 icon={<BarChartOutlined />}
-                type={indicators.volume ? 'primary' : 'default'}
+                className={indicators.volume ? 'toggle-btn is-active' : 'toggle-btn'}
+                  aria-pressed={indicators.volume}
                 onClick={() => toggleIndicator('volume')}
               >
                 成交量
@@ -419,7 +429,8 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
 
               <Button
                 size="small"
-                type={indicators.macd ? 'primary' : 'default'}
+                className={indicators.macd ? 'toggle-btn is-active' : 'toggle-btn'}
+                  aria-pressed={indicators.macd}
                 onClick={() => toggleIndicator('macd')}
               >
                 MACD
@@ -427,7 +438,8 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
 
               <Button
                 size="small"
-                type={indicators.rsi ? 'primary' : 'default'}
+                className={indicators.rsi ? 'toggle-btn is-active' : 'toggle-btn'}
+                  aria-pressed={indicators.rsi}
                 onClick={() => toggleIndicator('rsi')}
               >
                 RSI
@@ -435,7 +447,8 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
 
               <Button
                 size="small"
-                type={indicators.boll ? 'primary' : 'default'}
+                className={indicators.boll ? 'toggle-btn is-active' : 'toggle-btn'}
+                  aria-pressed={indicators.boll}
                 onClick={() => toggleIndicator('boll')}
               >
                 BOLL

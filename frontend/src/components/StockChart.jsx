@@ -14,9 +14,10 @@ import {
 import ReactECharts from 'echarts-for-react';
 import axios from 'axios';
 import { LuxuryCard, LoadingState, EmptyState, ChangeDisplay } from './Common';
+import { palette, fontSans, fontMono, echartsTooltip } from '../styles/palette';
 
 /**
- * 股票K线图表组件 - 黑金奢华风格
+ * 股票K线图表组件
  * @param {string} symbol - 股票代码
  * @param {string} name - 股票名称
  * @param {string} className - CSS类名
@@ -217,24 +218,22 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
     return { dates, klines, volumes, ma5, ma10, ma20, ma60, macd, kdj, closes };
   }, [chartData, indicator]);
 
-  // 黑金风格配色
+  // 图表配色（A 股红涨绿跌；指标线低饱和）
   const colors = {
-    up: '#10b981',
-    upGlow: 'rgba(16, 185, 129, 0.3)',
-    down: '#ef4444',
-    downGlow: 'rgba(239, 68, 68, 0.3)',
-    gold: '#d4a853',
-    goldLight: '#e8c87a',
-    ma5: '#d4a853',
-    ma10: '#3b82f6',
-    ma20: '#a855f7',
-    ma60: '#6b7280',
-    grid: 'rgba(41, 37, 36, 0.5)',
-    text: '#a8a29e',
-    textPrimary: '#fafaf9'
+    up: palette.up,
+    down: palette.down,
+    accent: palette.accent,
+    ma5: palette.ma5,
+    ma10: palette.ma10,
+    ma20: palette.ma20,
+    ma60: palette.ma60,
+    grid: palette.chartGrid,
+    axis: palette.chartAxis,
+    text: palette.chartText,
+    textPrimary: palette.fg
   };
 
-  // ECharts配置 - 黑金奢华风格
+  // ECharts 配置
   const getChartOption = useMemo(() => {
     if (!formatKlineData) return {};
 
@@ -265,19 +264,19 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
       data: dates,
       scale: true,
       boundaryGap: false,
-      axisLine: { lineStyle: { color: colors.grid } },
-      axisLabel: { show: !hasSubIndicator, color: colors.text, fontSize: 10 },
+      axisLine: { lineStyle: { color: colors.axis } },
+      axisLabel: { show: !hasSubIndicator, color: colors.text, fontSize: 10, fontFamily: fontMono },
       splitLine: { show: false }
     });
     yAxes.push({
       gridIndex: 0,
       scale: true,
       splitArea: { show: false },
-      splitLine: { lineStyle: { color: colors.grid, opacity: 0.3 } },
+      splitLine: { lineStyle: { color: colors.grid } },
       axisLabel: { 
         color: colors.text, 
         fontSize: 10,
-        fontFamily: 'JetBrains Mono'
+        fontFamily: fontMono
       }
     });
     
@@ -292,7 +291,7 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
         top: currentTop, 
         height: subHeight,
         show: true,
-        borderColor: colors.grid,
+        borderColor: colors.axis,
         borderWidth: { top: 1, right: 0, bottom: 0, left: 0 }
       });
       xAxes.push({
@@ -326,7 +325,7 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
         top: currentTop, 
         height: subHeight,
         show: true,
-        borderColor: colors.grid,
+        borderColor: colors.axis,
         borderWidth: { top: 1, right: 0, bottom: 0, left: 0 }
       });
       xAxes.push({
@@ -346,7 +345,7 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
           show: true,
           color: colors.text, 
           fontSize: 9,
-          fontFamily: 'JetBrains Mono'
+          fontFamily: fontMono
         },
         splitLine: { show: false },
         axisLine: { show: false },
@@ -364,7 +363,7 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
         top: currentTop, 
         height: subHeight,
         show: true,
-        borderColor: colors.grid,
+        borderColor: colors.axis,
         borderWidth: { top: 1, right: 0, bottom: 0, left: 0 }
       });
       xAxes.push({
@@ -373,8 +372,8 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
         data: dates,
         scale: true,
         boundaryGap: false,
-        axisLine: { lineStyle: { color: colors.grid } },
-        axisLabel: { color: colors.text, fontSize: 10 },
+        axisLine: { lineStyle: { color: colors.axis } },
+        axisLabel: { color: colors.text, fontSize: 10, fontFamily: fontMono },
         splitLine: { show: false }
       });
       yAxes.push({
@@ -385,9 +384,9 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
         axisLabel: { 
           color: colors.text, 
           fontSize: 9,
-          fontFamily: 'JetBrains Mono'
+          fontFamily: fontMono
         },
-        splitLine: { lineStyle: { color: colors.grid, opacity: 0.3 } },
+        splitLine: { lineStyle: { color: colors.grid } },
         axisLine: { show: false }
       });
     }
@@ -405,9 +404,7 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
               color: isUp ? colors.up : colors.down,
               color0: isUp ? colors.up : colors.down,
               borderColor: isUp ? colors.up : colors.down,
-              borderColor0: isUp ? colors.up : colors.down,
-              shadowBlur: 10,
-              shadowColor: isUp ? colors.upGlow : colors.downGlow
+              borderColor0: isUp ? colors.up : colors.down
             }
           };
         })
@@ -445,7 +442,7 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
           yAxisIndex: showVolume ? 2 : 1,
           data: macd.dif,
           smooth: true,
-          lineStyle: { color: colors.gold, width: 1.5 },
+          lineStyle: { color: colors.ma5, width: 1.2 },
           symbol: 'none'
         },
         {
@@ -481,7 +478,7 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
           yAxisIndex: gridIndex - 1,
           data: kdj.k,
           smooth: true,
-          lineStyle: { color: colors.gold, width: 1.5 },
+          lineStyle: { color: colors.ma5, width: 1.2 },
           symbol: 'none'
         },
         {
@@ -510,25 +507,21 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
     return {
       backgroundColor: 'transparent',
       animation: true,
-      animationDuration: 500,
+      animationDuration: 300,
       tooltip: {
         trigger: 'axis',
         axisPointer: { 
           type: 'cross',
           lineStyle: {
-            color: colors.gold,
-            opacity: 0.5
-          }
+            color: 'rgba(255, 255, 255, 0.25)',
+            type: 'dashed'
+          },
+          crossStyle: { color: 'rgba(255, 255, 255, 0.25)' },
+          label: { backgroundColor: palette.surface3, color: colors.textPrimary, fontFamily: fontMono }
         },
-        backgroundColor: 'rgba(17, 17, 24, 0.95)',
-        borderColor: colors.gold,
-        borderWidth: 1,
-        textStyle: { 
-          color: colors.textPrimary,
-          fontFamily: 'Plus Jakarta Sans'
-        },
+        ...echartsTooltip,
         formatter: function (params) {
-          let tooltip = `<div style="font-weight:bold;margin-bottom:8px;color:${colors.gold};font-family:JetBrains Mono">${params[0].axisValue}</div>`;
+          let tooltip = `<div style="font-weight:600;margin-bottom:6px;color:${colors.textPrimary};font-family:${fontMono.replace(/"/g, "'")}">${params[0].axisValue}</div>`;
           params.forEach(param => {
             if (param.seriesName === 'K线') {
               const data = param.data;
@@ -536,7 +529,7 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
               const change = ((data.value[1] - data.value[0]) / data.value[0] * 100).toFixed(2);
               tooltip += `
                 <div style="margin:4px 0;font-size:12px">
-                  <span style="display:inline-block;width:8px;height:8px;background:${isUp ? colors.up : colors.down};margin-right:6px;border-radius:50%;box-shadow:0 0 4px ${isUp ? colors.upGlow : colors.downGlow}"></span>
+                  <span style="display:inline-block;width:8px;height:8px;background:${isUp ? colors.up : colors.down};margin-right:6px;border-radius:50%"></span>
                   <span style="color:${colors.text}">开盘:</span> <span style="font-family:JetBrains Mono;color:${colors.textPrimary}">${data.value[0]}</span> | 
                   <span style="color:${colors.text}">收盘:</span> <span style="font-family:JetBrains Mono;color:${isUp ? colors.up : colors.down};font-weight:600">${data.value[1]} (${change > 0 ? '+' : ''}${change}%)</span> | 
                   <span style="color:${colors.text}">最低:</span> <span style="font-family:JetBrains Mono;color:${colors.textPrimary}">${data.value[2]}</span> | 
@@ -566,9 +559,13 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
         data: ['K线', 'MA5', 'MA10', 'MA20', 'MA60', '成交量', 'DIF', 'DEA', 'MACD', 'K', 'D', 'J'],
         textStyle: { 
           color: colors.text,
-          fontFamily: 'Plus Jakarta Sans',
+          fontFamily: fontSans,
           fontSize: 11
         },
+        inactiveColor: '#4a4d53',
+        icon: 'roundRect',
+        itemWidth: 10,
+        itemHeight: 3,
         top: 5,
         itemGap: 15
       },
@@ -590,15 +587,24 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
           height: '20px',
           start: 50,
           end: 100,
-          backgroundColor: 'rgba(26, 26, 36, 0.8)',
-          borderColor: colors.grid,
-          fillerColor: 'rgba(212, 168, 83, 0.2)',
-          handleStyle: { 
-            color: colors.gold,
-            borderColor: colors.gold,
-            borderWidth: 2
+          backgroundColor: palette.surface2,
+          borderColor: colors.axis,
+          fillerColor: 'rgba(124, 134, 255, 0.12)',
+          dataBackground: {
+            lineStyle: { color: 'rgba(255, 255, 255, 0.15)' },
+            areaStyle: { color: 'rgba(255, 255, 255, 0.04)' }
           },
-          textStyle: { color: colors.text, fontSize: 10 }
+          selectedDataBackground: {
+            lineStyle: { color: 'rgba(124, 134, 255, 0.5)' },
+            areaStyle: { color: 'rgba(124, 134, 255, 0.08)' }
+          },
+          handleStyle: { 
+            color: palette.surface3,
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            borderWidth: 1
+          },
+          moveHandleStyle: { color: palette.surface3 },
+          textStyle: { color: colors.text, fontSize: 10, fontFamily: fontMono }
         }
       ],
       series
@@ -651,8 +657,8 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
     <LuxuryCard 
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <StockOutlined style={{ color: 'var(--gold-primary)', fontSize: '18px' }} />
-          <span style={{ fontFamily: 'var(--font-display)' }}>K线图表</span>
+          <StockOutlined aria-hidden="true" style={{ color: 'var(--text-secondary)', fontSize: '15px' }} />
+          <span>K线图表</span>
           {symbol && (
             <div style={{ 
               display: 'flex',
@@ -662,12 +668,14 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
             }}>
               <Tag 
                 style={{ 
-                  background: 'rgba(212, 168, 83, 0.1)',
-                  borderColor: 'var(--border-gold)',
-                  color: 'var(--gold-primary)',
+                  background: 'var(--bg-tertiary)',
+                  borderColor: 'var(--border-color)',
+                  color: 'var(--text-primary)',
                   fontFamily: 'var(--font-mono)',
-                  fontSize: '13px',
-                  fontWeight: '600'
+                  fontVariantNumeric: 'tabular-nums',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  margin: 0
                 }}
               >
                 {symbol}
@@ -716,19 +724,19 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
         }}>
           <div style={{ display: 'flex', gap: '24px' }}>
             <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>最高</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>最高</div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', color: 'var(--up-color)', marginTop: '2px' }}>
                 {stockInfo.high?.toFixed(2)}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>最低</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>最低</div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', color: 'var(--down-color)', marginTop: '2px' }}>
                 {stockInfo.low?.toFixed(2)}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>成交量</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>成交量</div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', color: 'var(--text-primary)', marginTop: '2px' }}>
                 {(stockInfo.volume / 10000).toFixed(2)}万
               </div>
@@ -751,14 +759,9 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
           value={period} 
           onChange={(e) => setPeriod(e.target.value)}
           optionType="button"
+          buttonStyle="solid"
           size="small"
-          style={{
-            '.ant-radio-button-wrapper': {
-              background: 'var(--bg-tertiary)',
-              borderColor: 'var(--border-color)',
-              color: 'var(--text-secondary)'
-            }
-          }}
+          aria-label="K线周期"
         >
           {periodOptions.map(opt => (
             <Radio.Button key={opt.value} value={opt.value}>
@@ -789,9 +792,9 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
               closable={props.closable}
               onClose={props.onClose}
               style={{
-                background: 'rgba(212, 168, 83, 0.1)',
-                borderColor: 'var(--border-gold)',
-                color: 'var(--gold-primary)',
+                background: 'var(--bg-elevated)',
+                borderColor: 'var(--border-color)',
+                color: 'var(--text-primary)',
                 fontSize: '11px'
               }}
             >
@@ -806,25 +809,17 @@ const StockChart = ({ symbol, name, className = '', style = {} }) => {
             <Button 
               icon={<ReloadOutlined />} 
               size="small"
+              aria-label="刷新"
               onClick={fetchKlineData}
               loading={loading}
-              style={{
-                background: 'var(--bg-tertiary)',
-                borderColor: 'var(--border-color)',
-                color: 'var(--text-secondary)'
-              }}
             />
           </Tooltip>
           <Tooltip title={isFullscreen ? "退出全屏" : "全屏"}>
             <Button 
               icon={isFullscreen ? <CompressOutlined /> : <ExpandOutlined />} 
               size="small"
+              aria-label={isFullscreen ? "退出全屏" : "全屏"}
               onClick={handleFullscreen}
-              style={{
-                background: 'var(--bg-tertiary)',
-                borderColor: 'var(--border-color)',
-                color: 'var(--text-secondary)'
-              }}
             />
           </Tooltip>
         </Space>

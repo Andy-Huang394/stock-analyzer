@@ -12,6 +12,7 @@ import {
 import { LuxuryCard, LoadingState } from './Common';
 import axios from 'axios';
 import { Line, Column } from '@ant-design/plots';
+import { palette } from '../styles/palette';
 
 const { TabPane } = Tabs;
 
@@ -186,7 +187,7 @@ const MainFundFlowChart = ({ data }) => {
     yField: 'value',
     seriesField: 'type',
     smooth: true,
-    color: ['#52c41a', '#ff4d4f'],
+    color: [palette.up, palette.down],
     legend: {
       position: 'top-right'
     },
@@ -220,7 +221,7 @@ const RetailFundFlowChart = ({ data }) => {
     yField: 'value',
     columnStyle: (data) => {
       return {
-        fill: data.value >= 0 ? '#52c41a' : '#ff4d4f'
+        fill: data.value >= 0 ? palette.up : palette.down
       };
     },
     yAxis: {
@@ -236,7 +237,7 @@ const RetailFundFlowChart = ({ data }) => {
     label: {
       position: 'top',
       style: {
-        fill: '#8c8c8c'
+        fill: palette.fgSecondary
       }
     }
   };
@@ -256,7 +257,7 @@ const FundFlowTable = ({ data, type, showTags }) => {
       render: (rank) => (
         <span style={{ 
           fontWeight: 'bold',
-          color: rank <= 3 ? '#ffd700' : 'var(--text-secondary)'
+          color: rank <= 3 ? 'var(--text-primary)' : 'var(--text-secondary)'
         }}>
           {rank}
         </span>
@@ -317,7 +318,7 @@ const FundFlowTable = ({ data, type, showTags }) => {
       dataIndex: 'mainInflow',
       width: 120,
       render: (value) => (
-        <span style={{ color: value >= 0 ? '#52c41a' : '#ff4d4f' }}>
+        <span className="num" style={{ color: value >= 0 ? 'var(--up-color)' : 'var(--down-color)' }}>
           {value >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
           {Math.abs(value).toFixed(2)}亿
         </span>
@@ -332,7 +333,7 @@ const FundFlowTable = ({ data, type, showTags }) => {
           <Progress 
             percent={Math.abs(ratio)} 
             size="small"
-            strokeColor={record.netInflow >= 0 ? '#52c41a' : '#ff4d4f'}
+            strokeColor={record.netInflow >= 0 ? palette.up : palette.down}
             showInfo={false}
           />
         </Tooltip>

@@ -99,7 +99,7 @@ const StrategyConfig = () => {
           
           <Col span={12}>
             <Card 
-              title={<span style={{ color: 'var(--secondary-color)' }}>MACD 参数</span>}
+              title={<span>MACD 参数</span>}
               size="small"
               style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}
             >
@@ -119,7 +119,7 @@ const StrategyConfig = () => {
         <Row gutter={24} style={{ marginTop: '16px' }}>
           <Col span={12}>
             <Card 
-              title={<span style={{ color: '#00ff88' }}>均线参数</span>}
+              title={<span>均线参数</span>}
               size="small"
               style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}
             >
@@ -137,7 +137,7 @@ const StrategyConfig = () => {
           
           <Col span={12}>
             <Card 
-              title={<span style={{ color: '#ffaa00' }}>权重配置</span>}
+              title={<span>权重配置</span>}
               size="small"
               style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}
             >
@@ -161,7 +161,6 @@ const StrategyConfig = () => {
               htmlType="submit"
               loading={saving}
               icon={<SettingOutlined />}
-              className="scifi-button primary"
             >
               保存参数
             </Button>
@@ -170,7 +169,6 @@ const StrategyConfig = () => {
               onClick={runOptimization}
               loading={optimizing}
               icon={<SyncOutlined spin={optimizing} />}
-              className="scifi-button"
             >
               自动优化参数
             </Button>
@@ -178,7 +176,6 @@ const StrategyConfig = () => {
             <Button 
               onClick={fetchCurrentParams}
               icon={<PlayCircleOutlined />}
-              className="scifi-button"
             >
               重置
             </Button>

@@ -385,11 +385,11 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
         const alert = checkPriceAlert(record);
         return (
           <div>
-            <div style={{ fontWeight: '600', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div className="num" style={{ fontWeight: '500', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
               {symbol}
               {alert && (
                 <Tooltip title={alert.message}>
-                  <BellOutlined style={{ color: alert.type === 'high' ? '#ff4d4f' : '#52c41a' }} />
+                  <BellOutlined aria-label={alert.message} style={{ color: alert.type === 'high' ? 'var(--up-color)' : 'var(--down-color)' }} />
                 </Tooltip>
               )}
             </div>
@@ -404,7 +404,7 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
       width: 90,
       align: 'right',
       render: (price) => (
-        <span style={{ fontFamily: 'var(--font-mono)', fontWeight: '500' }}>
+        <span className="num" style={{ fontWeight: '500' }}>
           ¥{price?.toFixed(2)}
         </span>
       )
@@ -422,7 +422,7 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
       width: 100,
       align: 'right',
       render: (volume) => (
-        <span style={{ fontSize: '12px' }}>
+        <span className="num" style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           {volume ? `${(volume / 10000).toFixed(0)}万` : '-'}
         </span>
       )
@@ -484,17 +484,18 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
         title={
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <StarFilled style={{ color: '#fadb14' }} />
+              <StarFilled aria-hidden="true" style={{ color: 'var(--text-secondary)', fontSize: '14px' }} />
               <span>自选股</span>
               <Badge 
                 count={stats.total || watchlist.length} 
-                style={{ backgroundColor: 'var(--primary-color)' }} 
+                showZero
+                style={{ backgroundColor: 'var(--bg-elevated)', color: 'var(--text-secondary)', boxShadow: '0 0 0 1px var(--border-color)', fontFamily: 'var(--font-mono)' }} 
               />
               {useBackend && stats.with_alerts > 0 && (
-                <Badge 
-                  count={`${stats.with_alerts}预警`} 
-                  style={{ backgroundColor: '#ff4d4f' }} 
-                />
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 400, color: 'var(--text-secondary)' }}>
+                  <span className="status-dot" style={{ color: 'var(--warning-color)' }} aria-hidden="true" />
+                  <span className="num">{stats.with_alerts}</span> 预警
+                </span>
               )}
             </div>
             <Space size="small">
@@ -553,14 +554,14 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
               <Statistic 
                 title="自选股票数" 
                 value={stats.total || watchlist.length} 
-                valueStyle={{ color: 'var(--gold-primary)', fontSize: '20px' }}
+                valueStyle={{ color: 'var(--text-primary)', fontSize: '20px' }}
               />
             </Col>
             <Col span={12}>
               <Statistic 
                 title="已设预警" 
                 value={stats.with_alerts || 0} 
-                valueStyle={{ color: '#ff4d4f', fontSize: '20px' }}
+                valueStyle={{ color: 'var(--text-primary)', fontSize: '20px' }}
               />
             </Col>
           </Row>
@@ -606,7 +607,7 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
                   value={selectedStock.quote.price}
                   precision={2}
                   prefix="¥"
-                  valueStyle={{ color: 'var(--gold-primary)' }}
+                  valueStyle={{ color: 'var(--text-primary)' }}
                 />
               </Col>
               <Col span={6}>
@@ -616,7 +617,7 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
                   precision={2}
                   suffix="%"
                   valueStyle={{ 
-                    color: selectedStock.quote.change_percent >= 0 ? '#52c41a' : '#ff4d4f' 
+                    color: selectedStock.quote.change_percent >= 0 ? 'var(--up-color)' : 'var(--down-color)' 
                   }}
                 />
               </Col>
@@ -626,7 +627,7 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
                   value={selectedStock.quote.high}
                   precision={2}
                   prefix="¥"
-                  valueStyle={{ color: '#52c41a' }}
+                  valueStyle={{ color: 'var(--up-color)' }}
                 />
               </Col>
               <Col span={6}>
@@ -635,7 +636,7 @@ const Watchlist = ({ showInTable = false, onSelectStock, className = '', style =
                   value={selectedStock.quote.low}
                   precision={2}
                   prefix="¥"
-                  valueStyle={{ color: '#ff4d4f' }}
+                  valueStyle={{ color: 'var(--down-color)' }}
                 />
               </Col>
             </Row>
@@ -797,12 +798,14 @@ export const WatchlistButton = ({ symbol, name, size = 'small', onChange }) => {
   return (
     <Tooltip title={isWatched ? '移除自选' : '加入自选'}>
       <Button
-        type={isWatched ? 'primary' : 'default'}
+        type="default"
         icon={isWatched ? <StarFilled /> : <StarOutlined />}
         size={size}
         onClick={toggleWatchlist}
         loading={loading}
-        style={isWatched ? { color: '#fadb14', borderColor: '#fadb14' } : {}}
+        aria-pressed={isWatched}
+        aria-label={isWatched ? '移除自选' : '加入自选'}
+        style={isWatched ? { color: 'var(--accent)', borderColor: 'var(--accent-line)' } : {}}
       />
     </Tooltip>
   );
