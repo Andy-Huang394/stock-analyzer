@@ -136,8 +136,10 @@ class MetricsCalculator:
             alpha, beta = MetricsCalculator._calculate_alpha_beta(daily_returns, benchmark_returns)
         
         # ========== 其他指标 ==========
-        skewness = np.skew(daily_returns) if len(daily_returns) > 2 else 0
-        kurtosis = np.kurtosis(daily_returns) if len(daily_returns) > 2 else 0
+        skewness = float(pd.Series(daily_returns).skew()) if len(daily_returns) > 2 else 0
+        skewness = 0 if pd.isna(skewness) else skewness
+        kurtosis = float(pd.Series(daily_returns).kurt()) if len(daily_returns) > 3 else 0
+        kurtosis = 0 if pd.isna(kurtosis) else kurtosis
         
         # VaR and CVaR
         var_95 = np.percentile(daily_returns, 5) if daily_returns else 0

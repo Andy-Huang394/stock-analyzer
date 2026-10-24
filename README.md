@@ -88,7 +88,7 @@ stock-analyzer/
 | --- | --- |
 | 行情 | `GET /market/overview` · `GET /stocks/{symbol}/kline` · `GET /stocks/{symbol}/fundamentals` |
 | 分析 | `POST /analysis/run` · `GET /analysis/top` · `GET /analysis/multi-factor` |
-| 策略/回测 | `GET/POST /strategy/params` · `POST /backtest/run` · `POST /backtest/optimize` |
+| 策略/回测 | `GET/POST /strategy/params` · `POST /backtest/run` · `POST /backtest/optimize` · `POST /backtest/robust` |
 | 资金/板块 | `GET /fundflow/overview` · `GET /sectors/overview` |
 | 自选股 | `GET /watchlist` · `POST /watchlist/add` · `GET /watchlist/{symbol}/analysis` |
 | 数据 | `GET /data/quality/check` · `POST /data/import/csv` · `POST /data/export/excel` |
@@ -101,7 +101,7 @@ stock-analyzer/
 
 计划方向：
 - [ ] MACD / RSI / BOLL 指标面板、画线工具
-- [ ] 防过拟合回测规范：训练/验证/测试切分、手续费与滑点写死、未来函数检查、bootstrap
+- [x] 防过拟合回测规范（`POST /backtest/robust`，见 [BACKTEST_RULES.md](BACKTEST_RULES.md)）
 - [ ] 因子模块：Alpha007 等因子的 IC / 分组收益回测
 - [ ] 多智能体研究报告（多空辩论 + 风控评审，只输出研究结论）
 - [ ] 信号 → 模拟盘 → 日志 → 仪表盘闭环；每日研究摘要推送

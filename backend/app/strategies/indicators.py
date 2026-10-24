@@ -142,8 +142,12 @@ class SignalAnalyzer:
         
         signals = {}
         
-        # 计算所有指标
-        df = self.ti.calculate_ma(df)
+        # 计算所有指标（均线周期要包含参数里的 ma_short/medium/long，否则取列时 KeyError）
+        ma_periods = sorted({5, 10, 20, 60,
+                             int(self.params.get('ma_short', 5)),
+                             int(self.params.get('ma_medium', 20)),
+                             int(self.params.get('ma_long', 60))})
+        df = self.ti.calculate_ma(df, ma_periods)
         df = self.ti.calculate_rsi(df, self.params.get('rsi_period', 14))
         df = self.ti.calculate_macd(df, 
                                     self.params.get('macd_fast', 12),

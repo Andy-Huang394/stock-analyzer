@@ -14,6 +14,7 @@ from app.models.schemas import (
 from app.services.data_service import data_service
 from app.strategies.engine import StrategyEngine
 from app.backtest.engine import BacktestEngine
+from app.backtest.robust import robust_backtest, CostModel
 from app.data.fetcher import data_fetcher
 
 # 新增导入
@@ -548,6 +549,41 @@ async def run_backtest(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"回测失败: {str(e)}")
+
+
+@router.post("/backtest/robust")
+@rate_limit(requests_per_minute=3)
+@performance_monitor(slow_threshold=60.0)
+async def run_robust_backtest(
+    symbol: str,
+    days: int = Query(default=500, ge=160, le=2000, description="历史K线数量，至少 160"),
+    combinations: int = Query(default=12, ge=1, le=40),
+    commission: float = Query(default=0.00025, description="佣金（双边），不得低于万2.5"),
+    stamp_duty: float = Query(default=0.0005, description="印花税（卖出），不得低于0.05%"),
+    slippage: float = Query(default=0.001, description="滑点（双边），不得低于0.1%"),
+):
+    """
+    防过拟合回测（仅供研究/模拟盘）：train/val/test 时间切分、测试集只评估一次、
+    下一根开盘成交、成本下限、未来函数检查、平台选参、Block Bootstrap。规则见 BACKTEST_RULES.md
+    """
+    try:
+        costs = CostModel(commission=commission, stamp_duty=stamp_duty, slippage=slippage)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    df = data_fetcher.get_stock_history(symbol, days=days)
+    if df is None or df.empty:
+        raise HTTPException(status_code=400, detail=f"无法获取 {symbol} 的历史数据")
+    grid = [strategy_engine.params.model_dump()]
+    grid += [p.model_dump() for p in strategy_engine.generate_param_combinations(n_combinations=combinations)]
+    try:
+        import asyncio
+        result = await asyncio.to_thread(robust_backtest, df, grid, costs)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"回测失败: {str(e)}")
+    result["symbol"] = symbol
+    return result
 
 
 @router.post("/backtest/optimize")
