@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { createChart, ColorType, CrosshairMode, PriceScaleMode } from 'lightweight-charts';
-import { 
-  Card, Row, Col, Select, Button, Space, Switch, Tooltip, 
-  Tabs, Statistic, Badge, Divider
-} from 'antd';
-import { 
-  SyncOutlined, SettingOutlined, LineChartOutlined,
-  BarChartOutlined, ReloadOutlined, FullscreenOutlined
-} from '@ant-design/icons';
+import {
+  createChart, ColorType, CrosshairMode, LineStyle,
+  CandlestickSeries, LineSeries, HistogramSeries,
+} from 'lightweight-charts';
+import { sma, macd, rsi, bollinger } from '../utils/indicators';
+import { Row, Col, Select, Button, Space, Badge, Divider } from 'antd';
+import { SettingOutlined, BarChartOutlined, ReloadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { LuxuryCard, LoadingState, ChangeDisplay } from './Common';
 import { palette, fontSans } from '../styles/palette';
 
 const { Option } = Select;
-const { TabPane } = Tabs;
+
+const SUB_PANE_HEIGHT = 140;
+const MA_PERIODS = { ma5: 5, ma10: 10, ma20: 20, ma60: 60 };
 
 /**
  * 专业K线图表组件
@@ -25,8 +25,11 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
   const candlestickSeries = useRef(null);
   const volumeSeries = useRef(null);
   const maSeries = useRef({});
-  
-  const [symbol, setSymbol] = useState(initialSymbol || '600519');
+  const bollSeries = useRef(null);   // { upper, middle, lower }
+  const macdSeries = useRef(null);   // { dif, dea, hist }
+  const rsiSeries = useRef(null);    // { line }
+
+  const [symbol] = useState(initialSymbol || '600519');
   const [period, setPeriod] = useState('daily');
   const [loading, setLoading] = useState(false);
   const [klineData, setKlineData] = useState([]);
@@ -86,7 +89,8 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
     chart.current = chartInstance;
 
     // 创建K线系列
-    candlestickSeries.current = chartInstance.addCandlestickSeries({
+    // lightweight-charts v5：统一用 addSeries(定义, 选项, paneIndex)
+    candlestickSeries.current = chartInstance.addSeries(CandlestickSeries, {
       upColor: palette.up,
       downColor: palette.down,
       borderVisible: false,
@@ -94,15 +98,16 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
       wickDownColor: palette.down,
     });
 
-    // 创建成交量系列
-    volumeSeries.current = chartInstance.addHistogramSeries({
+    // 创建成交量系列（主图底部 20% 的独立价格轴）
+    volumeSeries.current = chartInstance.addSeries(HistogramSeries, {
       color: palette.down,
       priceFormat: { type: 'volume' },
-      priceScaleId: '',
-      scaleMargins: {
-        top: 0.8,
-        bottom: 0,
-      },
+      priceScaleId: 'volume',
+      lastValueVisible: false,
+      priceLineVisible: false,
+    });
+    chartInstance.priceScale('volume').applyOptions({
+      scaleMargins: { top: 0.8, bottom: 0 },
     });
 
     // 创建MA系列
@@ -114,12 +119,32 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
     };
 
     Object.keys(maColors).forEach(ma => {
-      maSeries.current[ma] = chartInstance.addLineSeries({
+      maSeries.current[ma] = chartInstance.addSeries(LineSeries, {
         color: maColors[ma],
         lineWidth: 1,
         title: ma.toUpperCase(),
+        lastValueVisible: false,
+        priceLineVisible: false,
+        crosshairMarkerVisible: false,
       });
     });
+
+    // BOLL 叠加在主图
+    const bollLine = (color, style, title) => chartInstance.addSeries(LineSeries, {
+      color,
+      lineWidth: 1,
+      lineStyle: style,
+      title,
+      visible: false,
+      lastValueVisible: false,
+      priceLineVisible: false,
+      crosshairMarkerVisible: false,
+    });
+    bollSeries.current = {
+      upper: bollLine(palette.accent, LineStyle.Dashed, 'UP'),
+      middle: bollLine(palette.fgSecondary, LineStyle.Solid, 'MID'),
+      lower: bollLine(palette.accent, LineStyle.Dashed, 'LOW'),
+    };
 
     // 十字准星移动事件
     chartInstance.subscribeCrosshairMove((param) => {
@@ -130,22 +155,28 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
 
       const data = param.seriesData.get(candlestickSeries.current);
       if (data) {
+        const val = (s) => (s ? param.seriesData.get(s)?.value : undefined);
         setHoverData({
           time: param.time,
           open: data.open,
           high: data.high,
           low: data.low,
           close: data.close,
+          dif: val(macdSeries.current?.dif),
+          dea: val(macdSeries.current?.dea),
+          macd: val(macdSeries.current?.hist),
+          rsi: val(rsiSeries.current?.line),
         });
       }
     });
 
-    // 窗口大小调整
+    // 窗口大小调整（总高度 = 主图 + 副图数 × SUB_PANE_HEIGHT）
+    const subPaneCount = () => Math.max(0, (chart.current?.panes().length ?? 1) - 1);
     const handleResize = () => {
       if (chartContainerRef.current && chart.current) {
         chart.current.applyOptions({
           width: chartContainerRef.current.clientWidth,
-          height: height,
+          height: height + subPaneCount() * SUB_PANE_HEIGHT,
         });
       }
     };
@@ -159,6 +190,10 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
         chart.current.remove();
         chart.current = null;
       }
+      macdSeries.current = null;
+      rsiSeries.current = null;
+      bollSeries.current = null;
+      maSeries.current = {};
     };
   }, [height]);
 
@@ -191,12 +226,10 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
         color: k.close >= k.open ? palette.up : palette.down,
       }));
 
-      // 设置数据
+      // 设置数据（指标由下方 effect 根据 klineData 同步）
+      if (!chart.current) return;
       candlestickSeries.current.setData(candleData);
       volumeSeries.current.setData(volumeData);
-
-      // 计算并设置MA数据
-      updateMAIndicators(data);
 
       // 获取股票信息
       const infoResponse = await axios.get(`/api/v1/stocks/${symbol}/quote`);
@@ -212,55 +245,90 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
     }
   }, [symbol, period]);
 
-  // 更新MA指标
-  const updateMAIndicators = (data) => {
-    if (!data || data.length === 0) return;
-
-    const periods = {
-      ma5: 5,
-      ma10: 10,
-      ma20: 20,
-      ma60: 60
-    };
-
-    Object.entries(periods).forEach(([key, period]) => {
-      if (indicators[key] && maSeries.current[key]) {
-        const maData = calculateMA(data, period);
-        maSeries.current[key].setData(maData);
-        maSeries.current[key].applyOptions({ visible: true });
-      } else if (maSeries.current[key]) {
-        maSeries.current[key].applyOptions({ visible: false });
-      }
-    });
-  };
-
-  // 计算MA
-  const calculateMA = (data, period) => {
-    const result = [];
-    for (let i = period - 1; i < data.length; i++) {
-      let sum = 0;
-      for (let j = 0; j < period; j++) {
-        sum += data[i - j].close;
-      }
-      result.push({
-        time: data[i].date,
-        value: sum / period,
-      });
-    }
-    return result;
-  };
-
   // 加载数据
   useEffect(() => {
     loadKlineData();
   }, [loadKlineData]);
 
-  // 更新指标显示
+  // 同步全部指标：MA / 成交量 / BOLL 在主图；MACD、RSI 按需建独立副图 pane
   useEffect(() => {
-    if (klineData.length > 0) {
-      updateMAIndicators(klineData);
+    const c = chart.current;
+    if (!c) return;
+    const data = klineData;
+
+    // 主图叠加
+    Object.entries(MA_PERIODS).forEach(([key, n]) => {
+      const s = maSeries.current[key];
+      if (!s) return;
+      if (indicators[key] && data.length) s.setData(sma(data, n));
+      s.applyOptions({ visible: !!indicators[key] });
+    });
+    volumeSeries.current?.applyOptions({ visible: indicators.volume });
+
+    if (bollSeries.current) {
+      const b = indicators.boll && data.length ? bollinger(data, 20, 2) : null;
+      Object.entries(bollSeries.current).forEach(([k, s]) => {
+        if (b) s.setData(b[k]);
+        s.applyOptions({ visible: !!b });
+      });
     }
-  }, [indicators, klineData]);
+
+    // 副图：先拆掉旧的，再按 MACD → RSI 顺序重建，保证 pane 下标连续
+    const dropPane = (ref) => {
+      if (!ref.current) return;
+      Object.values(ref.current).forEach((s) => c.removeSeries(s));
+      ref.current = null;
+    };
+    dropPane(rsiSeries);
+    dropPane(macdSeries);
+    // removeSeries 会自动移除空 pane；兜底清理残留
+    while (c.panes().length > 1) c.removePane(c.panes().length - 1);
+
+    let pane = 1;
+    if (indicators.macd && data.length) {
+      const m = macd(data, 12, 26, 9, { up: palette.up, down: palette.down });
+      const hist = c.addSeries(HistogramSeries, {
+        priceLineVisible: false, lastValueVisible: false, title: 'MACD',
+      }, pane);
+      const dif = c.addSeries(LineSeries, {
+        color: palette.ma5, lineWidth: 1, title: 'DIF',
+        priceLineVisible: false, crosshairMarkerVisible: false,
+      }, pane);
+      const dea = c.addSeries(LineSeries, {
+        color: palette.ma10, lineWidth: 1, title: 'DEA',
+        priceLineVisible: false, crosshairMarkerVisible: false,
+      }, pane);
+      hist.setData(m.hist);
+      dif.setData(m.dif);
+      dea.setData(m.dea);
+      macdSeries.current = { hist, dif, dea };
+      pane += 1;
+    }
+    if (indicators.rsi && data.length) {
+      const line = c.addSeries(LineSeries, {
+        color: palette.ma20, lineWidth: 1, title: 'RSI14',
+        priceLineVisible: false, crosshairMarkerVisible: false,
+        autoscaleInfoProvider: () => ({ priceRange: { minValue: 0, maxValue: 100 } }),
+      }, pane);
+      line.setData(rsi(data, 14));
+      [70, 30].forEach((price) => line.createPriceLine({
+        price, color: palette.lineStrong, lineWidth: 1,
+        lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: '',
+      }));
+      rsiSeries.current = { line };
+      pane += 1;
+    }
+
+    // 副图高度固定，主图保持 height
+    const panes = c.panes();
+    panes.forEach((p, i) => p.setHeight(i === 0 ? height : SUB_PANE_HEIGHT));
+    if (chartContainerRef.current) {
+      c.applyOptions({
+        width: chartContainerRef.current.clientWidth,
+        height: height + (panes.length - 1) * SUB_PANE_HEIGHT,
+      });
+    }
+  }, [indicators, klineData, height]);
 
   // 切换指标
   const toggleIndicator = (key) => {
@@ -301,6 +369,24 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
           <Col span={12} style={{ textAlign: 'right', color: palette.down }}>{hoverData.low?.toFixed(2)}</Col>
           <Col span={12}>收盘:</Col>
           <Col span={12} style={{ textAlign: 'right', fontWeight: 'bold' }}>{hoverData.close?.toFixed(2)}</Col>
+          {hoverData.dif !== undefined && (
+            <>
+              <Col span={12}>DIF/DEA:</Col>
+              <Col span={12} style={{ textAlign: 'right' }}>
+                {hoverData.dif.toFixed(3)} / {hoverData.dea?.toFixed(3)}
+              </Col>
+              <Col span={12}>MACD:</Col>
+              <Col span={12} style={{ textAlign: 'right', color: hoverData.macd >= 0 ? palette.up : palette.down }}>
+                {hoverData.macd?.toFixed(3)}
+              </Col>
+            </>
+          )}
+          {hoverData.rsi !== undefined && (
+            <>
+              <Col span={12}>RSI14:</Col>
+              <Col span={12} style={{ textAlign: 'right' }}>{hoverData.rsi.toFixed(2)}</Col>
+            </>
+          )}
         </Row>
       </div>
     );
@@ -466,7 +552,7 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
           ref={chartContainerRef}
           style={{
             width: '100%',
-            height: height,
+            minHeight: height, // 副图启用后由图表自行撑高
           }}
         />
 
@@ -482,22 +568,6 @@ const StockChartPro = ({ symbol: initialSymbol, height = 600 }) => {
         )}
       </LuxuryCard>
 
-      {/* 技术指标面板 */}
-      {indicators.macd && (
-        <LuxuryCard style={{ marginTop: 16 }}>
-          <div style={{ height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-            MACD 指标面板 (开发中)
-          </div>
-        </LuxuryCard>
-      )}
-
-      {indicators.rsi && (
-        <LuxuryCard style={{ marginTop: 16 }}>
-          <div style={{ height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-            RSI 指标面板 (开发中)
-          </div>
-        </LuxuryCard>
-      )}
     </div>
   );
 };
